@@ -3,40 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kham Kong Run #Special 2026 - สถิติและจับเวลาการวิ่ง</title>
+    <title>Kham Kong Run #Special 2026 - โฮงเฮียนแม่น้ำของ (5 KM Loop)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Kanit & Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            background: linear-gradient(160deg, #091326 0%, #102542 45%, #2b1d2e 85%, #3d211a 100%);
             color: #f8fafc;
             min-height: 100vh;
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.07);
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .mekong-header {
+            background: radial-gradient(circle at 50% 100%, rgba(251, 146, 60, 0.35) 0%, rgba(245, 158, 11, 0.18) 35%, rgba(15, 23, 42, 0.92) 80%),
+                        linear-gradient(180deg, #071327 0%, #172a46 65%, #7c2d12 100%);
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.18);
         }
-        .glass-card-light {
-            background: rgba(255, 255, 255, 0.95);
+        .glass-light {
+            background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .text-gradient {
-            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+        .sunrise-gradient-text {
+            background: linear-gradient(90deg, #fde047 0%, #fb923c 50%, #f97316 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .certificate-border {
-            border: 12px double #d97706;
+        /* Scanner Laser Animation */
+        @keyframes scanLine {
+            0%, 100% { top: 10%; }
+            50% { top: 88%; }
+        }
+        .scanner-laser {
+            position: absolute;
+            left: 5%;
+            width: 90%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #22c55e, #fde047, #22c55e, transparent);
+            box-shadow: 0 0 12px #22c55e;
+            animation: scanLine 2s infinite ease-in-out;
         }
         @media print {
             body * {
@@ -50,8 +67,9 @@
                 left: 0;
                 top: 0;
                 width: 100%;
-                height: 100%;
+                height: auto;
                 background: white !important;
+                padding: 0 !important;
             }
             .no-print {
                 display: none !important;
@@ -59,279 +77,477 @@
         }
     </style>
 </head>
-<body class="pb-12">
+<body class="pb-16 selection:bg-amber-500 selection:text-slate-950">
 
-    <!-- Header / Banner Poster Section -->
-    <header class="relative overflow-hidden mb-8 border-b border-indigo-500/30">
-        <div class="absolute inset-0 bg-cover bg-center filter brightness-50 blur-sm scale-105" 
-             style="background-image: url('https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?q=80&w=1600&auto=format&fit=crop');"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent"></div>
+    <!-- Top Floating Toast Notification -->
+    <div id="toastBox" class="fixed top-4 right-4 z-[100] hidden max-w-sm bg-slate-900/95 border border-amber-400/50 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transition-all">
+        <i id="toastIcon" data-lucide="check-circle-2" class="w-6 h-6 text-emerald-400 shrink-0"></i>
+        <p id="toastMessage" class="text-sm font-medium"></p>
+    </div>
+
+    <!-- 1. Poster Header & Event Status Banner (โทนแม่น้ำโขงยามเช้า) -->
+    <header class="mekong-header relative overflow-hidden border-b border-amber-500/30 shadow-2xl">
+        <!-- Decorative Sun Glow -->
+        <div class="absolute -bottom-20 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-amber-500/25 rounded-full blur-3xl pointer-events-none"></div>
         
-        <div class="max-w-4xl mx-auto px-4 py-10 relative z-10 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-sm font-medium mb-4 backdrop-blur-md">
-                <i class="fa-solid fa-person-running text-amber-400 animate-bounce"></i> 
-                งานวิ่งมินิมาราธอนระยะทาง 5 กม.
+        <div class="max-w-5xl mx-auto px-4 pt-6 pb-8 relative z-10">
+            <!-- Top Bar: Sound Toggle & Google Sheet Settings -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
+                    <i data-lucide="sunrise" class="w-4 h-4 text-orange-400"></i>
+                    <span>โฮงเฮียนแม่น้ำของ • ระยะวงกลม 5.00 กม.</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnToggleAudio" class="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-xs font-medium flex items-center gap-1.5 text-emerald-400 transition">
+                        <i id="audioIcon" data-lucide="volume-2" class="w-4 h-4"></i>
+                        <span id="audioLabel">เสียงพากย์: เปิด</span>
+                    </button>
+                    <button id="btnOpenSheetConfig" class="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-xs font-medium flex items-center gap-1.5 text-sky-300 transition">
+                        <i data-lucide="sheet" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Google Sheet Sync</span>
+                    </button>
+                </div>
             </div>
-            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-2 uppercase">
-                Kham Kong Run <span class="text-gradient">#Special 2026</span>
-            </h1>
-            <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto font-light">
-                <i class="fa-solid fa-location-dot text-rose-500 mr-2"></i> ณ จุด Start & Finish <strong class="text-amber-300">"โฮงเฮียนแม่น้ำของ"</strong> (รอบวงกลม 5 กม.)
-            </p>
+
+            <!-- Main Poster Title -->
+            <div class="text-center space-y-2 mb-6">
+                <p class="text-xs md:text-sm uppercase tracking-[0.25em] text-amber-300/90 font-semibold">
+                    Mekong River Morning Run • Mass Start 07:30 AM
+                </p>
+                <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-lg">
+                    Kham Kong Run <span class="sunrise-gradient-text">#Special 2026</span>
+                </h1>
+                <p class="text-slate-200 text-sm md:text-base max-w-xl mx-auto font-light">
+                    จุดปล่อยตัวและเส้นชัย ณ <strong class="text-amber-300 font-semibold">"โฮงเฮียนแม่น้ำของ"</strong> ระบบจับเวลาอัตโนมัติพร้อมกันและสแกน QR Code รับเกียรติบัตรทันที
+                </p>
+            </div>
+
+            <!-- Live Event Clock & Mass Start Status Banner -->
+            <div class="max-w-3xl mx-auto bg-slate-950/75 border border-amber-500/30 rounded-2xl p-4 md:p-5 backdrop-blur-md shadow-xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center text-center">
+                    <!-- Current Clock -->
+                    <div class="md:border-r border-slate-800 pr-0 md:pr-4">
+                        <p class="text-[11px] uppercase tracking-wider text-slate-400 flex items-center justify-center gap-1">
+                            <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i> เวลาปัจจุบัน (Clock)
+                        </p>
+                        <div id="liveClockDisplay" class="text-2xl md:text-3xl font-mono-num font-extrabold text-white mt-0.5">
+                            07:15:00
+                        </div>
+                        <p id="clockModeBadge" class="text-[10px] text-amber-400/90 mt-0.5">โหมดจำลองเวลาหน้างาน</p>
+                    </div>
+
+                    <!-- Event Status -->
+                    <div class="md:border-r border-slate-800 px-2">
+                        <p class="text-[11px] uppercase tracking-wider text-slate-400 mb-1">สถานะการแข่งขัน</p>
+                        <div id="raceStatusPill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                            <span>รอปล่อยตัว 07:30:00 น.</span>
+                        </div>
+                        <p id="raceSubStatus" class="text-[11px] text-slate-400 mt-1">พักผ่อนวอร์มร่างกายหน้าจุด Start</p>
+                    </div>
+
+                    <!-- Elapsed Race Time (From 07:30:00) -->
+                    <div class="pl-0 md:pl-4">
+                        <p class="text-[11px] uppercase tracking-wider text-slate-400 flex items-center justify-center gap-1">
+                            <i data-lucide="timer" class="w-3.5 h-3.5 text-orange-400"></i> เวลากลางการแข่งขัน (Gun Time)
+                        </p>
+                        <div id="gunTimeDisplay" class="text-2xl md:text-3xl font-mono-num font-extrabold text-emerald-400 mt-0.5">
+                            00:00:00
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-0.5">นับอัตโนมัติจาก 07:30:00 น.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-4xl mx-auto px-4 space-y-8">
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
-        <!-- 1. Registration Section -->
-        <section class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl">
-            <div class="flex items-center gap-3 mb-6 border-b border-slate-700/60 pb-4">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-400 font-bold text-xl">1</div>
-                <h2 class="text-2xl font-bold text-white">ลงทะเบียนนักวิ่ง (Runner Registration)</h2>
-            </div>
-
-            <form id="regForm" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Name & Surname -->
-                    <div>
-                        <label class="block text-slate-300 text-sm font-medium mb-2" for="fullName">
-                            <i class="fa-solid fa-user text-indigo-400 mr-1"></i> ชื่อ - นามสกุล *
-                        </label>
-                        <input type="text" id="fullName" required placeholder="เช่น สมชาย สายฟ้า"
-                               class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+        <!-- Race Director / Simulation Control Panel (สำหรับการทดสอบจำลอง Flow หน้างาน) -->
+        <section class="bg-gradient-to-r from-slate-900/90 via-indigo-950/80 to-slate-900/90 border border-sky-500/30 rounded-2xl p-4 shadow-lg">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-300 shrink-0">
+                        <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
                     </div>
-
-                    <!-- Gender Selection -->
                     <div>
-                        <label class="block text-slate-300 text-sm font-medium mb-2">
-                            <i class="fa-solid fa-venus-mars text-indigo-400 mr-1"></i> เพศ *
-                        </label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="gender" value="ชาย" checked class="peer sr-only">
-                                <div class="p-3 text-center rounded-xl bg-slate-900/80 border border-slate-700 text-slate-400 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/20 peer-checked:text-indigo-300 font-medium transition flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-mars text-blue-400"></i> ชาย (Male)
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="gender" value="หญิง" class="peer sr-only">
-                                <div class="p-3 text-center rounded-xl bg-slate-900/80 border border-slate-700 text-slate-400 peer-checked:border-rose-500 peer-checked:bg-rose-600/20 peer-checked:text-rose-300 font-medium transition flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-venus text-pink-400"></i> หญิง (Female)
-                                </div>
-                            </label>
-                        </div>
+                        <h2 class="text-sm font-bold text-sky-300 flex items-center gap-1.5">
+                            แผงควบคุมจำลองเหตุการณ์ (Race Director Simulation)
+                        </h2>
+                        <p class="text-xs text-slate-400">ใช้ทดสอบเปลี่ยนเวลาหน้างานเพื่อจำลองการปล่อยตัว 07:30 น. และการวิ่งเข้าเส้นชัยได้ทันที</p>
                     </div>
                 </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <button id="btnSimPreStart" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-medium text-slate-200 transition">
+                        1. ก่อนปล่อยตัว (07:15 น.)
+                    </button>
+                    <button id="btnSimMassStart" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-md transition flex items-center gap-1">
+                        <i data-lucide="flag" class="w-3.5 h-3.5"></i> 2. ปล่อยตัว 07:30 น. ทันที!
+                    </button>
+                    <button id="btnSimAdd25Min" class="px-3 py-1.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 text-emerald-300 text-xs font-semibold transition">
+                        +25 นาที (จำลองใกล้เส้นชัย)
+                    </button>
+                    <button id="btnUseRealClock" class="px-3 py-1.5 rounded-xl bg-slate-800/70 hover:bg-slate-700 border border-slate-700 text-[11px] text-slate-400 transition">
+                        เวลาจริง
+                    </button>
+                </div>
+            </div>
+        </section>
 
-                <!-- BIB Number Generator -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                    <div class="md:col-span-2">
-                        <label class="block text-slate-300 text-sm font-medium mb-2" for="bibNumber">
-                            <i class="fa-solid fa-id-badge text-indigo-400 mr-1"></i> หมายเลข BIB (สุ่มให้อัตโนมัติหรือกรอกเอง)
-                        </label>
-                        <input type="text" id="bibNumber" placeholder="เช่น A-501"
-                               class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-white font-mono text-lg font-bold tracking-wider placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+        <!-- 2. QR Code Checkpoints (จุดที่ 1 ลงทะเบียน & จุดที่ 2 สแกนเส้นชัย) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Checkpoint 1: Scan QR ลงทะเบียนหน้างาน -->
+            <div class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-700/70 pb-4 mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 font-bold">
+                                <i data-lucide="qr-code" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">จุดที่ 1 • หน้างานโฮงเฮียนแม่น้ำของ</span>
+                                <h2 class="text-lg font-bold text-white">สแกน QR ลงทะเบียนนักวิ่ง</h2>
+                            </div>
+                        </div>
+                        <button type="button" id="btnSimScanRegQR" class="px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-amber-300 text-xs font-medium flex items-center gap-1 transition">
+                            <i data-lucide="scan-line" class="w-3.5 h-3.5"></i> จำลองสแกน QR
+                        </button>
                     </div>
-                    <div>
-                        <button type="button" id="btnRandomBib" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-dice text-amber-400"></i> สุ่มเลข BIB ใหม่
+
+                    <form id="regForm" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs text-slate-300 mb-1" for="fullName">ชื่อ - นามสกุล นักวิ่ง *</label>
+                                <input type="text" id="fullName" required placeholder="เช่น ก้องภพ ริมโขง"
+                                    class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-300 mb-1" for="bibNumber">เลข BIB *</label>
+                                <div class="flex gap-1">
+                                    <input type="text" id="bibNumber" required placeholder="KK-101"
+                                        class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-mono-num font-bold text-amber-300 focus:outline-none focus:border-amber-400 transition">
+                                    <button type="button" id="btnRandomBib" title="สุ่มเลข BIB" class="px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 transition">
+                                        <i data-lucide="shuffle" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-slate-300 mb-1">ประเภทการแข่งขัน (แยกชาย / หญิง) *</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="gender" value="ชาย" checked class="peer sr-only">
+                                    <div class="py-2.5 px-3 text-center rounded-xl bg-slate-900/90 border border-slate-700 text-slate-400 peer-checked:border-sky-400 peer-checked:bg-sky-500/20 peer-checked:text-sky-300 text-sm font-semibold transition flex items-center justify-center gap-2">
+                                        <span>👨 ประเภทชาย (Male)</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="gender" value="หญิง" class="peer sr-only">
+                                    <div class="py-2.5 px-3 text-center rounded-xl bg-slate-900/90 border border-slate-700 text-slate-400 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 peer-checked:text-pink-300 text-sm font-semibold transition flex items-center justify-center gap-2">
+                                        <span>👩 ประเภทหญิง (Female)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+                            <span>ยืนยันลงทะเบียน & บันทึกเข้า Google Sheet</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Registered Runner Waiting Card -->
+                <div id="registeredStatusCard" class="hidden mt-5 p-4 rounded-2xl bg-emerald-950/50 border border-emerald-500/40">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div id="activeRunnerAvatar" class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 font-extrabold text-lg flex items-center justify-center shrink-0">
+                                ก
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">ลงทะเบียนสำเร็จ ✓</span>
+                                    <span id="activeRunnerBibBadge" class="font-mono-num text-xs font-bold text-amber-300">BIB: KK-101</span>
+                                </div>
+                                <h3 id="activeRunnerName" class="text-base font-bold text-white mt-0.5">ก้องภพ ริมโขง</h3>
+                                <p id="waitingInstructionText" class="text-xs text-emerald-200/90 mt-0.5">
+                                    ข้อมูลเข้าสู่ระบบแล้ว • พักผ่อนรอปล่อยตัวพร้อมกันเวลา 07:30 น.
+                                </p>
+                            </div>
+                        </div>
+                        <button id="btnSelectRunnerModal" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 shrink-0">
+                            เปลี่ยนนักวิ่ง
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checkpoint 2: Scan QR เส้นชัย (Finish Line 5 KM) -->
+            <div class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-700/70 pb-4 mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold">
+                                <i data-lucide="flag-triangle-right" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">จุดที่ 2 • เส้นชัยโฮงเฮียนแม่น้ำของ (5 กม.)</span>
+                                <h2 class="text-lg font-bold text-white">สแกน QR เข้าเส้นชัย & รับใบประกาศ</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Runner Personal Clock Preview -->
+                    <div class="bg-slate-950/75 border border-slate-800 rounded-2xl p-4 mb-5 text-center">
+                        <p class="text-xs text-slate-400">เวลาวิ่งสะสมของคุณ (คำนวณจาก 07:30:00 น. อัตโนมัติ)</p>
+                        <div id="personalLiveTimer" class="text-4xl md:text-5xl font-mono-num font-extrabold text-white my-2 tracking-wider">
+                            00:00:00
+                        </div>
+                        <div class="flex justify-center gap-6 text-xs pt-2 border-t border-slate-800/80">
+                            <div>
+                                <span class="text-slate-400">Pace คาดการณ์: </span>
+                                <span id="personalLivePace" class="font-mono-num font-bold text-amber-300">--'--"/กม.</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400">ระยะทาง: </span>
+                                <span class="font-mono-num font-bold text-sky-300">5.00 กม.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Finish Scan Action -->
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-300 mb-1" for="finishBibSelect">เลือกนักวิ่งที่กำลังเข้าเส้นชัย (หรือสแกน QR ป้ายเส้นชัย)</label>
+                            <select id="finishBibSelect" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400">
+                                <option value="">-- กรุณาลงทะเบียนนักวิ่งก่อน --</option>
+                            </select>
+                        </div>
+
+                        <button id="btnScanFinishQR" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold py-3.5 px-5 rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 text-base">
+                            <i data-lucide="scan-qr-code" class="w-5 h-5"></i>
+                            <span>สแกน QR เส้นชัย (บันทึกสถิติ & รับใบประกาศ)</span>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-indigo-600/30 transition duration-300 flex items-center justify-center gap-2 text-lg">
-                    <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลนักวิ่ง
-                </button>
-            </form>
-
-            <!-- Runner Profile Status Badge -->
-            <div id="activeRunnerBadge" class="hidden mt-6 p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div id="profileAvatar" class="w-14 h-14 rounded-full bg-indigo-600 text-white font-black text-2xl flex items-center justify-center shadow-inner">
-                        ?
+                <!-- Audio Replay & Cheer Controls -->
+                <div class="mt-5 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span class="text-slate-400 flex items-center gap-1">
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-amber-400"></i> ระบบโฆษกสนาม:
+                    </span>
+                    <div class="flex gap-2">
+                        <button id="btnCheerHorn" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition flex items-center gap-1">
+                            <i data-lucide="party-popper" class="w-3.5 h-3.5"></i> เสียงแตร & เชียร์
+                        </button>
+                        <button id="btnReplayAnnouncement" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition flex items-center gap-1">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ฟังเสียงประกาศซ้ำ
+                        </button>
                     </div>
-                    <div>
-                        <p class="text-xs text-indigo-300 uppercase tracking-widest">นักวิ่งปัจจุบัน</p>
-                        <h3 id="profileName" class="text-xl font-bold text-white">...</h3>
-                        <p class="text-xs text-slate-400">BIB: <span id="profileBib" class="font-mono text-amber-400 font-bold">...</span> | เพศ: <span id="profileGender">...</span></p>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button id="btnSwitchRunner" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 py-2 px-3 rounded-lg transition">
-                        <i class="fa-solid fa-users mr-1"></i> รายชื่อที่บันทึกไว้
-                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- 2. Timer & Scan Start/Finish Section -->
-        <section class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-            <div class="flex items-center justify-between border-b border-slate-700/60 pb-4 mb-6">
+        <!-- 3. Personal Stats, Leaderboard (แยกชาย/หญิง) & Google Sheet Database Table -->
+        <section class="glass-panel rounded-3xl p-6 shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/70 pb-4 mb-5">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-rose-600/30 border border-rose-400/30 flex items-center justify-center text-rose-400 font-bold text-xl">2</div>
-                    <h2 class="text-2xl font-bold text-white">ระบบสแกน & จับเวลาวิ่ง (Live Timer)</h2>
-                </div>
-                <span id="runStatusBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
-                    พร้อมปล่อยตัว
-                </span>
-            </div>
-
-            <!-- Timer Display -->
-            <div class="text-center py-6 bg-slate-950/60 rounded-2xl border border-slate-800 mb-6 relative">
-                <p class="text-slate-400 text-sm font-medium mb-1">ระยะทางโฮงเฮียนแม่น้ำของ: <strong class="text-indigo-400">5.00 กม.</strong></p>
-                <div id="timerDisplay" class="text-5xl md:text-7xl font-mono font-black tracking-widest text-white drop-shadow-md my-2">
-                    00:00:00
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 max-w-xs mx-auto mt-4 text-center border-t border-slate-800/80 pt-4">
-                    <div>
-                        <p class="text-xs text-slate-400">Pace ปัจจุบัน</p>
-                        <p id="livePace" class="text-xl font-bold text-emerald-400 font-mono">0'00"</p>
+                    <div class="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400">
+                        <i data-lucide="trophy" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400">ความเร็วเฉลี่ย</p>
-                        <p id="liveSpeed" class="text-xl font-bold text-amber-400 font-mono">0.0 km/h</p>
+                        <h2 class="text-lg font-bold text-white">สถิติการวิ่ง & ฐานข้อมูล Google Sheet (5 KM)</h2>
+                        <p class="text-xs text-slate-400">อัปเดตอันดับแยกประเภทชาย / หญิง และลิงก์รับใบประกาศเกียรติบัตร</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- Scan / Control Buttons -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button id="btnStart" class="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-5 px-6 rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-xl disabled:opacity-40 disabled:cursor-not-allowed">
-                    <i class="fa-solid fa-flag-checkered text-2xl group-hover:scale-110 transition-transform"></i>
-                    <span>แตะเพื่อ Start (เริ่มวิ่ง)</span>
-                </button>
-
-                <button id="btnFinish" disabled class="group relative overflow-hidden bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold py-5 px-6 rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-xl disabled:opacity-40 disabled:cursor-not-allowed">
-                    <i class="fa-solid fa-trophy text-2xl group-hover:scale-110 transition-transform text-amber-300"></i>
-                    <span>แตะเพื่อ Finish (เข้าเส้นชัย)</span>
-                </button>
-            </div>
-
-            <!-- Cheer Audio Controls -->
-            <div class="mt-6 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-volume-high text-indigo-400"></i>
-                    <span>ระบบเสียงเชียร์ & TTS ประกาศชื่อ:</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="btnPlayCheer" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 transition flex items-center gap-1.5 text-xs">
-                        <i class="fa-solid fa-bullhorn text-amber-400"></i> ลองเปิดเสียงเชียร์
-                    </button>
-                    <button id="btnTestTts" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition flex items-center gap-1.5 text-xs">
-                        <i class="fa-solid fa-comment-dots"></i> ทดสอบอ่านชื่อ
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Filter Tabs -->
+                    <div class="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-700 text-xs">
+                        <button data-filter="ALL" class="filter-tab px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition">ทั้งหมด</button>
+                        <button data-filter="ชาย" class="filter-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">ชาย</button>
+                        <button data-filter="หญิง" class="filter-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">หญิง</button>
+                    </div>
+                    <button id="btnExportCSV" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export CSV
                     </button>
                 </div>
             </div>
-        </section>
 
-        <!-- 3. Personal Stats & Certificate Section -->
-        <section class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-700/60 pb-4 mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-600/30 border border-amber-400/30 flex items-center justify-center text-amber-400 font-bold text-xl">3</div>
-                    <h2 class="text-2xl font-bold text-white">สถิติส่วนตัว & ใบประกาศ (E-Certificate)</h2>
-                </div>
-                <button id="btnViewCert" disabled class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl transition flex items-center gap-2 text-sm shadow-md disabled:opacity-40 disabled:cursor-not-allowed">
-                    <i class="fa-solid fa-award text-lg"></i> รับใบประกาศเกียรติบัตร
-                </button>
+            <!-- Database / Leaderboard Table -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-950/90 text-slate-400 text-xs uppercase">
+                        <tr>
+                            <th class="py-3 px-4">อันดับเพศ</th>
+                            <th class="py-3 px-4">BIB</th>
+                            <th class="py-3 px-4">ชื่อ - นามสกุล</th>
+                            <th class="py-3 px-4">ประเภท</th>
+                            <th class="py-3 px-4">สถานะ</th>
+                            <th class="py-3 px-4">เวลาเข้าเส้นชัย</th>
+                            <th class="py-3 px-4">สถิติเวลา (5 กม.)</th>
+                            <th class="py-3 px-4">Pace เฉลี่ย</th>
+                            <th class="py-3 px-4 text-right">เกียรติบัตร</th>
+                        </tr>
+                    </thead>
+                    <tbody id="databaseTableBody" class="divide-y divide-slate-800/80 bg-slate-900/40">
+                        <!-- Rendered via JS -->
+                    </tbody>
+                </table>
             </div>
-
-            <!-- Stats Table / Display -->
-            <div id="statsContainer" class="space-y-4">
-                <div class="p-6 text-center text-slate-400 bg-slate-900/40 rounded-2xl border border-dashed border-slate-700">
-                    <i class="fa-solid fa-stopwatch text-4xl text-slate-600 mb-2"></i>
-                    <p>ยังไม่มีสถิติการวิ่ง กรุณากด Start เพื่อเริ่มสถิติการวิ่งแรกของคุณ</p>
-                </div>
-            </div>
         </section>
-
     </main>
 
-    <!-- Modal: Registered Runners List -->
-    <div id="runnersModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card-light text-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[80vh] flex flex-col">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-200">
-                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-users text-indigo-600 mr-2"></i>เลือกนักวิ่ง</h3>
-                <button id="btnCloseRunnersModal" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+    <!-- Modal: QR Scanner Simulation Camera View -->
+    <div id="qrScannerModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl">
+            <h3 id="qrModalTitle" class="text-lg font-bold text-white mb-1">กำลังสแกน QR Code...</h3>
+            <p id="qrModalSubtitle" class="text-xs text-slate-400 mb-4">ส่องกล้องไปที่ป้าย QR Code ณ โฮงเฮียนแม่น้ำของ</p>
+            
+            <div class="relative w-56 h-56 mx-auto rounded-2xl bg-slate-950 border-2 border-emerald-400/70 overflow-hidden flex items-center justify-center mb-4">
+                <i data-lucide="qr-code" class="w-32 h-32 text-slate-700"></i>
+                <div class="scanner-laser"></div>
+                <span class="absolute bottom-2 text-[10px] font-mono-num text-emerald-400 bg-slate-950/80 px-2 py-0.5 rounded">DETECTING KKR-2026...</span>
             </div>
-            <div id="runnersList" class="py-4 space-y-2 overflow-y-auto flex-1">
-                <!-- List inserted via JS -->
+
+            <button id="btnCancelScan" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium">
+                ยกเลิก
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Switch Registered Runner -->
+    <div id="runnerSwitchModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 class="text-base font-bold text-white">เลือกนักวิ่งที่ลงทะเบียนในระบบ</h3>
+                <button id="btnCloseSwitchModal" class="text-slate-400 hover:text-white text-xl">&times;</button>
+            </div>
+            <div id="switchRunnerList" class="py-3 space-y-2 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Google Sheet Webhook Integration Config -->
+    <div id="sheetConfigModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i data-lucide="sheet" class="w-5 h-5 text-emerald-400"></i> เชื่อมต่อ Google Sheet (Apps Script Webhook)
+                </h3>
+                <button id="btnCloseSheetModal" class="text-slate-400 hover:text-white text-xl">&times;</button>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                ระบบจะบันทึกข้อมูลลงตารางฐานข้อมูลในแอปทันที และหากคุณวางลิงก์ <strong>Google Apps Script Web App URL</strong> ด้านล่าง ระบบจะส่งข้อมูล <code class="text-amber-300">POST JSON</code> (BIB, ชื่อ-สกุล, เพศ, เวลาวิ่ง, Pace, อันดับ) ไปยัง Google Sheet ของคุณแบบ Real-time ด้วยครับ
+            </p>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Google Apps Script Web App URL (ไม่บังคับ)</label>
+                <input type="url" id="sheetWebhookInput" placeholder="https://script.google.com/macros/s/.../exec"
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="btnSaveSheetWebhook" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold">
+                    บันทึกการตั้งค่า
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal: E-Certificate -->
+    <!-- 4. Modal: E-Certificate (ใบประกาศเกียรติบัตรระดับงานวิ่งมาราธอน) -->
     <div id="certificateModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden overflow-y-auto p-4 flex items-center justify-center">
-        <div class="relative max-w-3xl w-full my-auto">
-            <!-- Modal Close & Action Bar -->
-            <div class="no-print flex justify-end gap-3 mb-4">
-                <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-5 rounded-xl transition flex items-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-print"></i> พิมพ์ / บันทึก PDF
+        <div class="max-w-3xl w-full my-auto">
+            <!-- Top Action Buttons -->
+            <div class="no-print flex flex-wrap items-center justify-between gap-2 mb-3">
+                <button id="btnCertReplayVoice" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                    <i data-lucide="volume-2" class="w-4 h-4"></i> ฟังเสียงประกาศยินดีอีกครั้ง
                 </button>
-                <button id="btnCloseCert" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-xl transition">
-                    <i class="fa-solid fa-xmark text-lg"></i> ปิด
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                        <i data-lucide="printer" class="w-4 h-4"></i> บันทึกรูปภาพ / พิมพ์ PDF
+                    </button>
+                    <button id="btnCloseCertModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">
+                        ปิดหน้าต่าง
+                    </button>
+                </div>
             </div>
 
-            <!-- Certificate Card -->
-            <div class="bg-gradient-to-br from-amber-50 via-white to-orange-50 text-slate-900 p-8 md:p-12 rounded-3xl shadow-2xl border-8 border-amber-500 relative overflow-hidden">
-                <!-- Decorative Watermark / Badges -->
-                <div class="absolute -right-12 -top-12 w-48 h-48 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
-                <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-indigo-400/10 rounded-full blur-2xl pointer-events-none"></div>
-                
-                <div class="border-2 border-amber-600/30 p-6 md:p-8 rounded-2xl relative">
-                    <!-- Cert Header -->
-                    <div class="text-center space-y-2 mb-8">
-                        <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-950 rounded-full flex items-center justify-center text-3xl shadow-md">
-                            <i class="fa-solid fa-trophy"></i>
+            <!-- Marathon E-Certificate Design -->
+            <div class="bg-gradient-to-br from-[#fffdf7] via-white to-[#fff7ed] text-slate-900 rounded-3xl p-5 sm:p-8 shadow-2xl border-[10px] border-double border-amber-500 relative overflow-hidden">
+                <!-- Decorative Corner Ribbons -->
+                <div class="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-amber-400/25 to-transparent pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-36 h-36 bg-gradient-to-tr from-sky-500/15 to-transparent pointer-events-none"></div>
+
+                <div class="border-2 border-amber-500/40 rounded-2xl p-6 sm:p-8 relative text-center">
+                    <!-- Official Event Seal / Stamp -->
+                    <div class="flex justify-center mb-3">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-slate-900 via-blue-950 to-amber-600 p-1 shadow-xl">
+                            <div class="w-full h-full rounded-full border-2 border-dashed border-amber-300 flex flex-col items-center justify-center text-white">
+                                <span class="text-[9px] font-bold tracking-widest text-amber-300">FINISHER</span>
+                                <span class="text-lg font-extrabold leading-none">5 KM</span>
+                                <span class="text-[8px] text-amber-200">2026</span>
+                            </div>
                         </div>
-                        <h4 class="text-xs uppercase font-extrabold tracking-widest text-amber-700">ใบประกาศเกียรติบัตรแสดงความยินดี</h4>
-                        <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Kham Kong Run #Special 2026</h2>
-                        <p class="text-sm text-slate-600 font-medium">จุด Start/Finish ณ โฮงเฮียนแม่น้ำของ (ระยะทาง 5.00 กิโลเมตร)</p>
                     </div>
 
-                    <!-- Cert Body -->
-                    <div class="text-center space-y-4 my-8">
-                        <p class="text-slate-600 text-sm">ขอมอบใบประกาศเกียรติบัตรฉบับนี้เพื่อแสดงว่า</p>
-                        <h3 id="certRunnerName" class="text-3xl md:text-4xl font-extrabold text-indigo-950 underline decoration-amber-400 decoration-wavy underline-offset-8">
-                            คุณสมชาย สายฟ้า
+                    <p class="text-xs font-bold uppercase tracking-[0.25em] text-amber-700">Official Finisher Certificate</p>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-1">
+                        Kham Kong Run <span class="text-orange-600">#Special 2026</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">
+                        ณ โฮงเฮียนแม่น้ำของ • เส้นทางรอบวงกลม ระยะทาง 5.00 กิโลเมตร
+                    </p>
+
+                    <div class="my-6 space-y-2">
+                        <p class="text-xs sm:text-sm text-slate-500">ใบประกาศเกียรติบัตรฉบับนี้ขอมอบให้ไว้เพื่อแสดงว่า</p>
+                        <h3 id="certName" class="text-3xl sm:text-4xl font-extrabold text-blue-950 underline decoration-amber-400 decoration-4 underline-offset-8 py-1">
+                            ก้องภพ ริมโขง
                         </h3>
-                        <p class="text-slate-700 font-medium">
-                            หมายเลข BIB: <span id="certBib" class="font-mono font-bold text-amber-700">A-101</span> 
-                            (<span id="certGender">ชาย</span>)
-                        </p>
-                        <p class="text-slate-600 text-sm max-w-lg mx-auto">
-                            ได้เข้าร่วมและวิ่งเข้าเส้นชัยสำเร็จตามเป้าหมายด้วยความมุ่งมั่นและสปิริตนักกีฬาอย่างแท้จริง
+                        <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold mt-2">
+                            <span>BIB: <strong id="certBib" class="font-mono-num text-amber-300">KK-101</strong></span>
+                            <span>•</span>
+                            <span>ประเภท: <strong id="certGender" class="text-sky-300">ชาย</strong></span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 pt-2">
+                            ได้วิ่งเข้าเส้นชัยระยะทาง 5 กิโลเมตร (Mass Start 07:30 น.) สำเร็จสมบูรณ์
                         </p>
                     </div>
 
-                    <!-- Cert Stats Table -->
-                    <div class="grid grid-cols-3 gap-3 bg-amber-500/10 p-4 rounded-xl border border-amber-400/30 text-center my-6">
-                        <div>
-                            <p class="text-xs text-slate-500 font-semibold">เวลาสุทธิ (Net Time)</p>
-                            <p id="certTime" class="text-lg md:text-2xl font-black font-mono text-indigo-900">00:25:30</p>
+                    <!-- Official Stats Grid -->
+                    <div class="grid grid-cols-3 gap-2 sm:gap-4 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-4 rounded-2xl shadow-inner my-6">
+                        <div class="border-r border-slate-700/80">
+                            <p class="text-[10px] sm:text-xs text-amber-300/90 uppercase">สถิติเวลา (Gun Time)</p>
+                            <p id="certDuration" class="text-lg sm:text-2xl font-mono-num font-extrabold text-white mt-0.5">00:26:15</p>
+                        </div>
+                        <div class="border-r border-slate-700/80">
+                            <p class="text-[10px] sm:text-xs text-amber-300/90 uppercase">ค่า Pace เฉลี่ย</p>
+                            <p id="certPace" class="text-lg sm:text-2xl font-mono-num font-extrabold text-emerald-400 mt-0.5">5'15"</p>
+                            <p class="text-[9px] text-slate-400">นาที / กม.</p>
                         </div>
                         <div>
-                            <p class="text-xs text-slate-500 font-semibold">Pace เฉลี่ย</p>
-                            <p id="certPace" class="text-lg md:text-2xl font-black font-mono text-emerald-800">5'06"</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-slate-500 font-semibold">ลำดับเพศ (<span id="certGenderLabel">ชาย</span>)</p>
-                            <p id="certRank" class="text-lg md:text-2xl font-black font-mono text-amber-700">อันดับที่ 1</p>
+                            <p class="text-[10px] sm:text-xs text-amber-300/90 uppercase">อันดับประเภท<span id="certGenderShort">ชาย</span></p>
+                            <p id="certRank" class="text-lg sm:text-2xl font-mono-num font-extrabold text-amber-400 mt-0.5">อันดับ 1</p>
                         </div>
                     </div>
 
-                    <!-- Cert Footer -->
-                    <div class="mt-10 pt-6 border-t border-slate-300 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
-                        <div>
-                            <p>วันที่บันทึกสถิติ: <span id="certDate">12 พฤศจิกายน 2026</span></p>
-                            <p class="text-[10px] text-slate-400">รหัสตรวจสอบ E-Cert: <span id="certId" class="font-mono">KKR2026-9988</span></p>
+                    <!-- Signatures & Official Stamp -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs text-slate-500">
+                        <div class="text-center sm:text-left">
+                            <p>ปล่อยตัวเวลา: <strong>07:30:00 น.</strong> | เข้าเส้นชัย: <strong id="certFinishClock">07:56:15 น.</strong></p>
+                            <p class="text-[10px] text-slate-400 font-mono-num mt-0.5">Verified ID: <span id="certVerifyId">KKR26-88412</span></p>
                         </div>
-                        <div class="text-center md:text-right">
-                            <div class="font-serif italic text-base font-bold text-slate-800">คณะกรรมการจัดงานวิ่ง</div>
-                            <p class="text-[11px] text-slate-500">Kham Kong Run #Special 2026</p>
+                        <div class="flex items-center gap-3">
+                            <!-- Official Circular Stamp -->
+                            <div class="w-14 h-14 rounded-full border-2 border-red-600/70 text-red-700/80 flex flex-col items-center justify-center -rotate-12 text-[8px] font-extrabold leading-tight p-1">
+                                <span>โฮงเฮียน</span>
+                                <span>แม่น้ำของ</span>
+                                <span>VERIFIED</span>
+                            </div>
+                            <div class="text-center">
+                                <p class="font-bold text-slate-800 text-sm">คณะกรรมการจัดการแข่งขัน</p>
+                                <p class="text-[11px] text-slate-500">Kham Kong Run #Special 2026</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -339,393 +555,720 @@
         </div>
     </div>
 
-    <!-- JavaScript Application Logic -->
     <script>
-        // State Management
-        let runners = JSON.parse(localStorage.getItem('kkr_runners')) || [];
-        let activeRunner = JSON.parse(localStorage.getItem('kkr_active_runner')) || null;
-        let records = JSON.parse(localStorage.getItem('kkr_records')) || [];
-
-        let timerInterval = null;
-        let startTime = null;
-        let elapsedTime = 0;
-        let isRunning = false;
+        // ==========================================
+        // 1. STATE & CONFIGURATION
+        // ==========================================
         const RACE_DISTANCE_KM = 5.0;
+        const MASS_START_HOUR = 7;
+        const MASS_START_MINUTE = 30;
+        const MASS_START_SECOND = 0;
 
-        // Sound Effects Audio Context Synthesizer
-        const playTone = (freq, type = 'sine', duration = 0.2) => {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch (e) {
-                console.log("Audio not supported or allowed");
+        let audioEnabled = true;
+        let lastAnnouncementText = "";
+        let currentFilter = "ALL";
+        let selectedRunnerId = localStorage.getItem('kkr26_selected_runner') || null;
+        let sheetWebhookUrl = localStorage.getItem('kkr26_sheet_webhook') || "";
+
+        // Simulation Clock State: Defaults to 07:18:00 on Event Day so users can experience pre-start & click Mass Start 07:30 immediately
+        let useRealClock = false;
+        let simOffsetMs = 0;
+        let simBaseTime = new Date();
+        simBaseTime.setHours(7, 18, 0, 0);
+        let simPageLoadTime = Date.now();
+
+        // Load or seed sample runners in database
+        let runnersDB = JSON.parse(localStorage.getItem('kkr26_runners_db')) || [
+            {
+                id: "seed-1",
+                bib: "KK-001",
+                name: "สมชาย สายน้ำโขง",
+                gender: "ชาย",
+                status: "FINISHED",
+                registeredAt: "06:55:12",
+                finishClock: "07:53:40",
+                durationMs: (23 * 60 + 40) * 1000,
+                durationFormatted: "00:23:40",
+                paceFormatted: "4'44\""
+            },
+            {
+                id: "seed-2",
+                bib: "KK-002",
+                name: "ลัดดาวัลย์ แสงอรุณ",
+                gender: "หญิง",
+                status: "FINISHED",
+                registeredAt: "07:02:18",
+                finishClock: "07:56:15",
+                durationMs: (26 * 60 + 15) * 1000,
+                durationFormatted: "00:26:15",
+                paceFormatted: "5'15\""
             }
-        };
+        ];
 
-        const playFanfare = () => {
-            const notes = [261.63, 329.63, 392.00, 523.25];
-            notes.forEach((note, index) => {
-                setTimeout(() => playTone(note, 'triangle', 0.4), index * 150);
-            });
-        };
+        // ==========================================
+        // 2. WEB AUDIO API (SYNTHESIZED CHEER & HORN) & THAI TTS
+        // ==========================================
+        function playCelebrationAudio() {
+            if (!audioEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 1) Air Horn / Fanfare Brass Chord
+                const freqs = [392.00, 493.88, 587.33, 783.99]; // G Major fanfare
+                freqs.forEach((f, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(f, ctx.currentTime + idx * 0.08);
+                    
+                    gain.gain.setValueAtTime(0.001, ctx.currentTime + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + idx * 0.08 + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.65);
+                    
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + idx * 0.08);
+                    osc.stop(ctx.currentTime + idx * 0.08 + 0.7);
+                });
 
-        // Text-to-Speech Helper
-        const speakText = (text) => {
+                // 2) Synthesized Crowd Applause / Cheer Noise Burst
+                const bufferSize = ctx.sampleRate * 1.8;
+                const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = (Math.random() * 2 - 1) * Math.sin((i / bufferSize) * Math.PI);
+                }
+
+                const whiteNoise = ctx.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1100;
+                filter.Q.value = 0.7;
+
+                const noiseGain = ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.12, ctx.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 1.8);
+
+                whiteNoise.connect(filter);
+                filter.connect(noiseGain);
+                noiseGain.connect(ctx.destination);
+                whiteNoise.start();
+            } catch (err) {
+                console.warn("Web Audio blocked:", err);
+            }
+        }
+
+        function playBeep(freq = 880, duration = 0.15) {
+            if (!audioEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function speakThai(text) {
+            lastAnnouncementText = text;
+            if (!audioEnabled) return;
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Stop ongoing speech
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'th-TH';
-                utterance.rate = 0.95;
-                utterance.pitch = 1.0;
+                utterance.rate = 0.96;
+                utterance.pitch = 1.05;
                 window.speechSynthesis.speak(utterance);
             }
-        };
+        }
 
-        // Generate Random BIB Number
-        const generateBib = () => {
-            const num = Math.floor(Math.random() * 900) + 100;
-            return `BIB-${num}`;
-        };
+        // ==========================================
+        // 3. TIME & MASS START (07:30:00) ENGINE
+        // ==========================================
+        function getCurrentEventTime() {
+            if (useRealClock) {
+                return new Date();
+            }
+            const elapsedSinceLoad = Date.now() - simPageLoadTime;
+            return new Date(simBaseTime.getTime() + elapsedSinceLoad + simOffsetMs);
+        }
 
-        // DOM Elements
-        const regForm = document.getElementById('regForm');
-        const fullNameInput = document.getElementById('fullName');
-        const bibInput = document.getElementById('bibNumber');
-        const btnRandomBib = document.getElementById('btnRandomBib');
-        const activeRunnerBadge = document.getElementById('activeRunnerBadge');
-        const profileAvatar = document.getElementById('profileAvatar');
-        const profileName = document.getElementById('profileName');
-        const profileBib = document.getElementById('profileBib');
-        const profileGender = document.getElementById('profileGender');
-        const btnSwitchRunner = document.getElementById('btnSwitchRunner');
+        function getMassStartTime(referenceDate) {
+            const start = new Date(referenceDate);
+            start.setHours(MASS_START_HOUR, MASS_START_MINUTE, MASS_START_SECOND, 0);
+            return start;
+        }
 
-        const timerDisplay = document.getElementById('timerDisplay');
-        const livePace = document.getElementById('livePace');
-        const liveSpeed = document.getElementById('liveSpeed');
-        const btnStart = document.getElementById('btnStart');
-        const btnFinish = document.getElementById('btnFinish');
-        const runStatusBadge = document.getElementById('runStatusBadge');
+        function formatClockHMS(dateObj) {
+            return dateObj.toTimeString().split(' ')[0];
+        }
 
-        const statsContainer = document.getElementById('statsContainer');
-        const btnViewCert = document.getElementById('btnViewCert');
-        const runnersModal = document.getElementById('runnersModal');
-        const runnersList = document.getElementById('runnersList');
-        const btnCloseRunnersModal = document.getElementById('btnCloseRunnersModal');
+        function formatDurationHMS(ms) {
+            if (ms < 0) ms = 0;
+            const totalSeconds = Math.floor(ms / 1000);
+            const hrs = Math.floor(totalSeconds / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
 
-        const certificateModal = document.getElementById('certificateModal');
-        const btnCloseCert = document.getElementById('btnCloseCert');
+        function calculatePace(durationMs) {
+            const totalMinutes = (durationMs / 1000) / 60;
+            const paceDec = totalMinutes / RACE_DISTANCE_KM;
+            const pMin = Math.floor(paceDec);
+            const pSec = Math.round((paceDec - pMin) * 60);
+            if (pSec === 60) {
+                return { min: pMin + 1, sec: 0, text: `${pMin + 1}'00"` };
+            }
+            return { min: pMin, sec: pSec, text: `${pMin}'${String(pSec).padStart(2, '0')}"` };
+        }
 
-        // Init App
-        window.addEventListener('DOMContentLoaded', () => {
-            bibInput.value = generateBib();
-            updateActiveRunnerUI();
-            renderStats();
+        function updateClockLoop() {
+            const now = getCurrentEventTime();
+            const massStart = getMassStartTime(now);
+            const diffMs = now.getTime() - massStart.getTime();
 
-            // Check URL parameters or defaults
-            btnRandomBib.addEventListener('click', () => {
-                bibInput.value = generateBib();
-                playTone(440, 'sine', 0.1);
-            });
+            // Update Live Clock
+            document.getElementById('liveClockDisplay').textContent = formatClockHMS(now);
 
-            // Register Runner
-            regForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = fullNameInput.value.trim();
-                const gender = regForm.gender.value;
-                const bib = bibInput.value.trim() || generateBib();
+            const statusPill = document.getElementById('raceStatusPill');
+            const subStatus = document.getElementById('raceSubStatus');
+            const gunTimeEl = document.getElementById('gunTimeDisplay');
+            const personalTimerEl = document.getElementById('personalLiveTimer');
+            const personalPaceEl = document.getElementById('personalLivePace');
 
-                if (!name) return;
+            if (diffMs < 0) {
+                // Before 07:30:00
+                const remainStr = formatDurationHMS(Math.abs(diffMs));
+                statusPill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold";
+                statusPill.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span><span>รอปล่อยตัว 07:30:00 น.</span>`;
+                subStatus.textContent = `อีก ${remainStr} จะปล่อยตัวพร้อมกัน`;
+                gunTimeEl.textContent = "00:00:00";
+                gunTimeEl.className = "text-2xl md:text-3xl font-mono-num font-extrabold text-slate-400 mt-0.5";
 
-                const runner = { id: Date.now().toString(), name, gender, bib };
-                runners.push(runner);
-                activeRunner = runner;
-
-                localStorage.setItem('kkr_runners', JSON.stringify(runners));
-                localStorage.setItem('kkr_active_runner', JSON.stringify(activeRunner));
-
-                updateActiveRunnerUI();
-                playTone(587.33, 'triangle', 0.2);
-                alert(`ลงทะเบียนเรียบร้อย! ยินดีต้อนรับคุณ ${name} (${bib})`);
-            });
-
-            // Start Timer
-            btnStart.addEventListener('click', startTimer);
-            btnFinish.addEventListener('click', finishTimer);
-
-            // Modals
-            btnSwitchRunner.addEventListener('click', openRunnersModal);
-            btnCloseRunnersModal.addEventListener('click', () => runnersModal.classList.add('hidden'));
-            btnViewCert.addEventListener('click', openCertificate);
-            btnCloseCert.addEventListener('click', () => certificateModal.classList.add('hidden'));
-
-            // Audio Cheer Tests
-            document.getElementById('btnPlayCheer').addEventListener('click', () => {
-                playFanfare();
-                speakText("สู้ๆ ครับนักวิ่ง! ใกล้ถึงเส้นชัยโฮงเฮียนแม่น้ำของแล้ว!");
-            });
-
-            document.getElementById('btnTestTts').addEventListener('click', () => {
-                if (activeRunner) {
-                    speakText(`ขอต้อนรับคุณ ${activeRunner.name} หมายเลข ${activeRunner.bib} สู่ Kham Kong Run 2026`);
-                } else {
-                    speakText("กรุณาลงทะเบียนนักวิ่งก่อนทดสอบระบบเสียงครับ");
-                }
-            });
-        });
-
-        // Update Active Runner UI Display
-        function updateActiveRunnerUI() {
-            if (activeRunner) {
-                activeRunnerBadge.classList.remove('hidden');
-                profileName.textContent = activeRunner.name;
-                profileBib.textContent = activeRunner.bib;
-                profileGender.textContent = activeRunner.gender;
-                profileAvatar.textContent = activeRunner.name.charAt(0);
-                btnStart.disabled = false;
+                personalTimerEl.textContent = "00:00:00";
+                personalPaceEl.textContent = "รอปล่อยตัว";
             } else {
-                activeRunnerBadge.classList.add('hidden');
-                btnStart.disabled = true;
+                // Race Started (>= 07:30:00)
+                const elapsedStr = formatDurationHMS(diffMs);
+                statusPill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold";
+                statusPill.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>กำลังแข่งขัน (Mass Start)</span>`;
+                subStatus.textContent = "นับเวลาอัตโนมัติจากจุดปล่อยตัว 07:30 น.";
+                gunTimeEl.textContent = elapsedStr;
+                gunTimeEl.className = "text-2xl md:text-3xl font-mono-num font-extrabold text-emerald-400 mt-0.5";
+
+                // Check active runner status
+                const activeRunner = runnersDB.find(r => r.id === selectedRunnerId);
+                if (activeRunner && activeRunner.status === "FINISHED") {
+                    personalTimerEl.textContent = activeRunner.durationFormatted;
+                    personalPaceEl.textContent = `${activeRunner.paceFormatted}/กม.`;
+                } else {
+                    personalTimerEl.textContent = elapsedStr;
+                    if (diffMs >= 60000) {
+                        personalPaceEl.textContent = `${calculatePace(diffMs).text}/กม.`;
+                    } else {
+                        personalPaceEl.textContent = "กำลังออกตัว...";
+                    }
+                }
             }
         }
 
-        // Timer Functions
-        function startTimer() {
-            if (!activeRunner) {
-                alert("กรุณาลงทะเบียนชื่อนักวิ่งก่อนเริ่มจับเวลาครับ");
+        // ==========================================
+        // 4. GOOGLE SHEET SYNC & CSV EXPORT
+        // ==========================================
+        async function syncToGoogleSheet(payload) {
+            if (!sheetWebhookUrl) return;
+            try {
+                await fetch(sheetWebhookUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.error("Google Sheet Sync error:", err);
+            }
+        }
+
+        function exportToCSV() {
+            const headers = ["อันดับเพศ", "BIB", "ชื่อ-นามสกุล", "ประเภท", "สถานะ", "เวลาลงทะเบียน", "เวลาปล่อยตัว", "เวลาเข้าเส้นชัย", "ระยะเวลาวิ่ง(5กม.)", "Paceเฉลี่ย"];
+            const rows = runnersDB.map(r => {
+                const rank = getGenderRank(r);
+                return [
+                    r.status === "FINISHED" ? rank : "-",
+                    r.bib,
+                    `"${r.name}"`,
+                    r.gender,
+                    r.status === "FINISHED" ? "เข้าเส้นชัย" : "รอ/กำลังวิ่ง",
+                    r.registeredAt,
+                    "07:30:00",
+                    r.finishClock || "-",
+                    r.durationFormatted || "-",
+                    r.paceFormatted || "-"
+                ].join(",");
+            });
+
+            const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `KhamKongRun2026_Stats_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("ดาวน์โหลดไฟล์ตารางสถิติ CSV เรียบร้อยแล้ว!");
+        }
+
+        // ==========================================
+        // 5. CORE RUNNER FLOW & RANKING LOGIC
+        // ==========================================
+        function saveDB() {
+            localStorage.setItem('kkr26_runners_db', JSON.stringify(runnersDB));
+            if (selectedRunnerId) {
+                localStorage.setItem('kkr26_selected_runner', selectedRunnerId);
+            }
+        }
+
+        function getGenderRank(runner) {
+            if (runner.status !== "FINISHED") return null;
+            const finishedSameGender = runnersDB
+                .filter(r => r.status === "FINISHED" && r.gender === runner.gender)
+                .sort((a, b) => a.durationMs - b.durationMs);
+            const index = finishedSameGender.findIndex(r => r.id === runner.id);
+            return index >= 0 ? index + 1 : null;
+        }
+
+        function generateRandomBib() {
+            const num = Math.floor(100 + Math.random() * 899);
+            return `KK-${num}`;
+        }
+
+        function showToast(msg) {
+            const box = document.getElementById('toastBox');
+            document.getElementById('toastMessage').textContent = msg;
+            box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 4000);
+        }
+
+        function updateUI() {
+            // Update Active Runner Card
+            const active = runnersDB.find(r => r.id === selectedRunnerId) || runnersDB[runnersDB.length - 1];
+            if (active) {
+                selectedRunnerId = active.id;
+                document.getElementById('registeredStatusCard').classList.remove('hidden');
+                document.getElementById('activeRunnerAvatar').textContent = active.name.charAt(0);
+                document.getElementById('activeRunnerBibBadge').textContent = `BIB: ${active.bib} (${active.gender})`;
+                document.getElementById('activeRunnerName').textContent = active.name;
+                
+                if (active.status === "FINISHED") {
+                    document.getElementById('waitingInstructionText').textContent = `เข้าเส้นชัยแล้ว! เวลา ${active.durationFormatted} (Pace ${active.paceFormatted})`;
+                } else {
+                    document.getElementById('waitingInstructionText').textContent = `ข้อมูลเข้า Google Sheet แล้ว • พักผ่อนรอปล่อยตัวพร้อมกัน 07:30 น.`;
+                }
+            }
+
+            // Update Finish Dropdown Select
+            const selectEl = document.getElementById('finishBibSelect');
+            if (runnersDB.length === 0) {
+                selectEl.innerHTML = `<option value="">-- กรุณาลงทะเบียนนักวิ่งก่อน --</option>`;
+            } else {
+                selectEl.innerHTML = runnersDB.map(r => {
+                    const statusLabel = r.status === "FINISHED" ? `✅ เข้าเส้นชัยแล้ว (${r.durationFormatted})` : `🏃‍♂️ รอสแกนเข้าเส้นชัย`;
+                    return `<option value="${r.id}" ${r.id === selectedRunnerId ? 'selected' : ''}>[${r.bib}] ${r.name} (${r.gender}) - ${statusLabel}</option>`;
+                }).join('');
+            }
+
+            renderTable();
+            lucide.createIcons();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('databaseTableBody');
+            let filtered = [...runnersDB];
+            if (currentFilter !== "ALL") {
+                filtered = filtered.filter(r => r.gender === currentFilter);
+            }
+
+            // Sort: Finished (fastest first), then Registered
+            filtered.sort((a, b) => {
+                if (a.status === "FINISHED" && b.status === "FINISHED") return a.durationMs - b.durationMs;
+                if (a.status === "FINISHED") return -1;
+                if (b.status === "FINISHED") return 1;
+                return 0;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">ยังไม่มีข้อมูลนักวิ่งในหมวดนี้</td></tr>`;
                 return;
             }
 
-            isRunning = true;
-            startTime = Date.now() - elapsedTime;
-            btnStart.disabled = true;
-            btnFinish.disabled = false;
+            tbody.innerHTML = filtered.map(r => {
+                const rank = getGenderRank(r);
+                const rankBadge = rank 
+                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-xs">#${rank} ${r.gender}</span>`
+                    : `<span class="text-slate-500 text-xs">-</span>`;
+                
+                const statusBadge = r.status === "FINISHED"
+                    ? `<span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-semibold">เข้าเส้นชัย</span>`
+                    : `<span class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 text-xs">รอปล่อยตัว/กำลังวิ่ง</span>`;
 
-            runStatusBadge.textContent = "กำลังวิ่ง...";
-            runStatusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse";
+                const certBtn = r.status === "FINISHED"
+                    ? `<button onclick="openCertificate('${r.id}')" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs inline-flex items-center gap-1 shadow transition">
+                        <i data-lucide="award" class="w-3.5 h-3.5"></i> ดูเกียรติบัตร
+                       </button>`
+                    : `<span class="text-xs text-slate-500">รอเข้าเส้นชัย</span>`;
 
-            // Sound & Speech
-            playTone(880, 'sine', 0.3);
-            speakText(`ปล่อยตัวแล้ว! คุณ ${activeRunner.name} เริ่มวิ่งระยะทาง 5 กิโลเมตร ขอให้โชคดีครับ!`);
-
-            timerInterval = setInterval(() => {
-                elapsedTime = Date.now() - startTime;
-                updateTimerDisplay(elapsedTime);
-            }, 100);
+                return `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="py-3 px-4">${rankBadge}</td>
+                        <td class="py-3 px-4 font-mono-num font-bold text-amber-300">${r.bib}</td>
+                        <td class="py-3 px-4 font-medium text-white">${r.name}</td>
+                        <td class="py-3 px-4 text-xs ${r.gender === 'ชาย' ? 'text-sky-300' : 'text-pink-300'}">${r.gender}</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 font-mono-num text-xs text-slate-300">${r.finishClock || '-'}</td>
+                        <td class="py-3 px-4 font-mono-num font-bold text-emerald-400">${r.durationFormatted || '-'}</td>
+                        <td class="py-3 px-4 font-mono-num text-xs text-slate-200">${r.paceFormatted ? r.paceFormatted + '/กม.' : '-'}</td>
+                        <td class="py-3 px-4 text-right">${certBtn}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        function finishTimer() {
-            if (!isRunning) return;
+        // Handle Finish Line QR Scan
+        function processFinishScan(runnerId) {
+            const runner = runnersDB.find(r => r.id === runnerId);
+            if (!runner) {
+                showToast("กรุณาเลือกหรือลงทะเบียนนักวิ่งก่อนสแกนเส้นชัย");
+                return;
+            }
 
-            clearInterval(timerInterval);
-            isRunning = false;
-            btnStart.disabled = false;
-            btnFinish.disabled = true;
+            const now = getCurrentEventTime();
+            const massStart = getMassStartTime(now);
+            let durationMs = now.getTime() - massStart.getTime();
 
-            runStatusBadge.textContent = "เข้าเส้นชัยเรียบร้อย!";
-            runStatusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/40";
+            if (durationMs <= 0) {
+                showToast("ยังไม่ถึงเวลาปล่อยตัว 07:30 น.! กรุณากดปุ่ม '2. ปล่อยตัว 07:30 น. ทันที!' ในแผงจำลองด้านบนเพื่อทดสอบ");
+                playBeep(300, 0.3);
+                return;
+            }
 
-            // Calculate Final Stats
-            const totalSeconds = Math.floor(elapsedTime / 1000);
-            const paceMinPerKm = (totalSeconds / 60) / RACE_DISTANCE_KM;
-            const paceMinutes = Math.floor(paceMinPerKm);
-            const paceSecs = Math.round((paceMinPerKm - paceMinutes) * 60);
-            const formattedPace = `${paceMinutes}'${paceSecs < 10 ? '0' : ''}${paceSecs}"`;
+            // Calculate stats
+            const durationFormatted = formatDurationHMS(durationMs);
+            const paceObj = calculatePace(durationMs);
+            const finishClock = formatClockHMS(now);
 
-            // Calculate Gender Rank
-            const genderRecords = records.filter(r => r.gender === activeRunner.gender);
-            const genderRank = genderRecords.length + 1;
+            runner.status = "FINISHED";
+            runner.finishClock = finishClock;
+            runner.durationMs = durationMs;
+            runner.durationFormatted = durationFormatted;
+            runner.paceFormatted = paceObj.text;
 
-            const record = {
-                id: Date.now().toString(),
-                runnerId: activeRunner.id,
-                name: activeRunner.name,
-                gender: activeRunner.gender,
-                bib: activeRunner.bib,
-                timeMs: elapsedTime,
-                timeFormatted: formatTime(elapsedTime),
-                pace: formattedPace,
-                rank: genderRank,
-                date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })
-            };
+            selectedRunnerId = runner.id;
+            saveDB();
+            updateUI();
 
-            records.push(record);
-            localStorage.setItem('kkr_records', JSON.stringify(records));
+            // Calculate Gender Rank after updating status
+            const rank = getGenderRank(runner);
 
-            // Effects: Confetti & Fanfare
+            // Sync to Google Sheet Webhook if configured
+            syncToGoogleSheet({
+                event: "FINISH_SCAN",
+                bib: runner.bib,
+                name: runner.name,
+                gender: runner.gender,
+                startTime: "07:30:00",
+                finishTime: finishClock,
+                duration: durationFormatted,
+                pace: paceObj.text,
+                genderRank: rank
+            });
+
+            // Trigger Confetti & Celebration Sound
             confetti({
-                particleCount: 120,
-                spread: 80,
+                particleCount: 150,
+                spread: 85,
                 origin: { y: 0.6 }
             });
-            playFanfare();
+            playCelebrationAudio();
 
-            // Speech Announcement
-            const minAnnouncement = Math.floor(totalSeconds / 60);
-            const secAnnouncement = totalSeconds % 60;
-            const speechMsg = `ยินดีด้วยครับ! คุณ ${activeRunner.name} เข้าเส้นชัยโฮงเฮียนแม่น้ำของ เรียบร้อยแล้ว! ทำเวลาไป ${minAnnouncement} นาที ${secAnnouncement} วินาที เพซเฉลี่ย ${paceMinutes} นาที ${paceSecs} วินาที เป็นลำดับเพศ${activeRunner.gender} อันดับที่ ${genderRank}`;
-            speakText(speechMsg);
-
-            renderStats();
-            elapsedTime = 0; // Reset timer for next run
-        }
-
-        function updateTimerDisplay(ms) {
-            timerDisplay.textContent = formatTime(ms);
-
-            // Live Pace Calculation
-            const seconds = ms / 1000;
-            if (seconds > 0) {
-                // Estimated progress for 5km (visual simulation/estimation)
-                const speedKmh = 12.0; // simulated average speed indicator
-                const paceDecimal = 60 / speedKmh; 
-                const pMin = Math.floor(paceDecimal);
-                const pSec = Math.floor((paceDecimal - pMin) * 60);
-                livePace.textContent = `${pMin}'${pSec < 10 ? '0' : ''}${pSec}"`;
-                liveSpeed.textContent = `${speedKmh.toFixed(1)} km/h`;
-            }
-        }
-
-        function formatTime(ms) {
-            const totalSecs = Math.floor(ms / 1000);
-            const hrs = Math.floor(totalSecs / 3600);
-            const mins = Math.floor((totalSecs % 3600) / 60);
+            // Thai Speech Announcement
+            const totalSecs = Math.floor(durationMs / 1000);
+            const mins = Math.floor(totalSecs / 60);
             const secs = totalSecs % 60;
-            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            const announcement = `ยินดีด้วยครับ คุณ${runner.name} หมายเลขบิบ ${runner.bib} เข้าเส้นชัยระยะทาง 5 กิโลเมตร ณ โฮงเฮียนแม่น้ำของ ใช้เวลา ${mins} นาที ${secs} วินาที ค่าเพซเฉลี่ย ${paceObj.min} นาที ${paceObj.sec} วินาทีต่อกิโลเมตร คว้าลำดับที่ ${rank} ประเภท${runner.gender} ครับ`;
+            
+            setTimeout(() => speakThai(announcement), 600);
+
+            // Automatically open E-Certificate
+            openCertificate(runner.id);
         }
 
-        // Render Stats Table
-        function renderStats() {
-            if (records.length === 0) {
-                statsContainer.innerHTML = `
-                    <div class="p-6 text-center text-slate-400 bg-slate-900/40 rounded-2xl border border-dashed border-slate-700">
-                        <i class="fa-solid fa-stopwatch text-4xl text-slate-600 mb-2"></i>
-                        <p>ยังไม่มีสถิติการวิ่ง กรุณากด Start เพื่อเริ่มบันทึกเวลาสถิติแรก</p>
-                    </div>`;
-                btnViewCert.disabled = true;
-                return;
-            }
+        window.openCertificate = function(runnerId) {
+            const runner = runnersDB.find(r => r.id === runnerId);
+            if (!runner || runner.status !== "FINISHED") return;
 
-            btnViewCert.disabled = false;
+            const rank = getGenderRank(runner);
+            document.getElementById('certName').textContent = runner.name;
+            document.getElementById('certBib').textContent = runner.bib;
+            document.getElementById('certGender').textContent = runner.gender;
+            document.getElementById('certGenderShort').textContent = runner.gender;
+            document.getElementById('certDuration').textContent = runner.durationFormatted;
+            document.getElementById('certPace').textContent = runner.paceFormatted;
+            document.getElementById('certRank').textContent = `อันดับ ${rank}`;
+            document.getElementById('certFinishClock').textContent = `${runner.finishClock} น.`;
+            document.getElementById('certVerifyId').textContent = `KKR26-${runner.bib}-${rank}`;
 
-            // Sort records by time ascending
-            const sortedRecords = [...records].sort((a, b) => a.timeMs - b.timeMs);
-
-            let html = `
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-slate-300">
-                        <thead class="bg-slate-950/80 text-slate-400 uppercase text-xs font-semibold">
-                            <tr>
-                                <th class="p-3">ลำดับ (รวม/เพศ)</th>
-                                <th class="p-3">นักวิ่ง</th>
-                                <th class="p-3">BIB</th>
-                                <th class="p-3">เวลา (Net Time)</th>
-                                <th class="p-3">Pace</th>
-                                <th class="p-3 text-right">ใบประกาศ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800">`;
-
-            sortedRecords.forEach((rec, idx) => {
-                // Gender rank calculation
-                const sameGender = sortedRecords.filter(r => r.gender === rec.gender);
-                const genderRank = sameGender.findIndex(r => r.id === rec.id) + 1;
-
-                html += `
-                    <tr class="hover:bg-slate-800/40 transition">
-                        <td class="p-3">
-                            <span class="font-bold text-amber-400">#${idx + 1}</span> 
-                            <span class="text-xs text-slate-400">(${rec.gender} #${genderRank})</span>
-                        </td>
-                        <td class="p-3 font-medium text-white">${rec.name}</td>
-                        <td class="p-3 font-mono text-indigo-400">${rec.bib}</td>
-                        <td class="p-3 font-mono font-bold text-emerald-400">${rec.timeFormatted}</td>
-                        <td class="p-3 font-mono">${rec.pace}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="openCertificateForRecord('${rec.id}')" class="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg transition">
-                                <i class="fa-solid fa-certificate mr-1"></i> E-Cert
-                            </button>
-                        </td>
-                    </tr>`;
-            });
-
-            html += `</tbody></table></div>`;
-            statsContainer.innerHTML = html;
-        }
-
-        // Modal Handlers
-        function openRunnersModal() {
-            if (runners.length === 0) {
-                runnersList.innerHTML = `<p class="text-slate-500 text-center py-4">ยังไม่มีรายชื่อนักวิ่งในระบบ</p>`;
-            } else {
-                runnersList.innerHTML = runners.map(r => `
-                    <div onclick="selectRunner('${r.id}')" class="p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 cursor-pointer flex justify-between items-center transition">
-                        <div>
-                            <p class="font-bold text-slate-800">${r.name}</p>
-                            <p class="text-xs text-slate-500">BIB: ${r.bib} | เพศ: ${r.gender}</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-slate-400 text-sm"></i>
-                    </div>
-                `).join('');
-            }
-            runnersModal.classList.remove('hidden');
-        }
-
-        function selectRunner(id) {
-            const runner = runners.find(r => r.id === id);
-            if (runner) {
-                activeRunner = runner;
-                localStorage.setItem('kkr_active_runner', JSON.stringify(activeRunner));
-                updateActiveRunnerUI();
-                runnersModal.classList.add('hidden');
-                speakText(`สลับไปยังนักวิ่ง คุณ ${runner.name}`);
-            }
-        }
-
-        function openCertificate() {
-            if (!activeRunner) return;
-            // Get latest record for active runner or generic
-            const userRecords = records.filter(r => r.runnerId === activeRunner.id);
-            if (userRecords.length > 0) {
-                const latest = userRecords[userRecords.length - 1];
-                populateCertModal(latest);
-            } else {
-                alert("ยังไม่มีสถิติสำหรับนักวิ่งท่านนี้ กรุณาวิ่งเข้าเส้นชัยก่อนรับใบประกาศครับ");
-            }
-        }
-
-        window.openCertificateForRecord = function(recordId) {
-            const rec = records.find(r => r.id === recordId);
-            if (rec) {
-                populateCertModal(rec);
-            }
+            document.getElementById('certificateModal').classList.remove('hidden');
+            lucide.createIcons();
         };
 
-        function populateCertModal(rec) {
-            document.getElementById('certRunnerName').textContent = rec.name;
-            document.getElementById('certBib').textContent = rec.bib;
-            document.getElementById('certGender').textContent = rec.gender;
-            document.getElementById('certGenderLabel').textContent = rec.gender;
-            document.getElementById('certTime').textContent = rec.timeFormatted;
-            document.getElementById('certPace').textContent = rec.pace;
-            document.getElementById('certDate').textContent = rec.date || new Date().toLocaleDateString('th-TH');
-            document.getElementById('certId').textContent = `KKR2026-${rec.id.slice(-6)}`;
+        // ==========================================
+        // 6. EVENT LISTENERS & INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('bibNumber').value = generateRandomBib();
+            document.getElementById('sheetWebhookInput').value = sheetWebhookUrl;
+            updateUI();
+            updateClockLoop();
+            setInterval(updateClockLoop, 250);
 
-            // Gender rank recalculation
-            const sameGender = records.filter(r => r.gender === rec.gender).sort((a,b) => a.timeMs - b.timeMs);
-            const rank = sameGender.findIndex(r => r.id === rec.id) + 1;
-            document.getElementById('certRank').textContent = `อันดับที่ ${rank}`;
+            // Random BIB
+            document.getElementById('btnRandomBib').addEventListener('click', () => {
+                document.getElementById('bibNumber').value = generateRandomBib();
+                playBeep(660, 0.1);
+            });
 
-            certificateModal.classList.remove('hidden');
-        }
+            // Registration Submit (Checkpoint 1)
+            document.getElementById('regForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('fullName').value.trim();
+                const bib = document.getElementById('bibNumber').value.trim().toUpperCase();
+                const gender = document.querySelector('input[name="gender"]:checked').value;
+
+                if (!name || !bib) return;
+
+                const nowStr = formatClockHMS(getCurrentEventTime());
+                const newRunner = {
+                    id: `run-${Date.now()}`,
+                    bib,
+                    name,
+                    gender,
+                    status: "REGISTERED",
+                    registeredAt: nowStr,
+                    finishClock: null,
+                    durationMs: null,
+                    durationFormatted: null,
+                    paceFormatted: null
+                };
+
+                runnersDB.push(newRunner);
+                selectedRunnerId = newRunner.id;
+                saveDB();
+                updateUI();
+
+                // Sync to Google Sheet
+                syncToGoogleSheet({
+                    event: "REGISTER",
+                    bib,
+                    name,
+                    gender,
+                    registeredAt: nowStr
+                });
+
+                playBeep(880, 0.2);
+                speakThai(`ลงทะเบียนสำเร็จครับ คุณ${name} หมายเลขบิบ ${bib} ประเภท${gender} เชิญพักผ่อนรอปล่อยตัวพร้อมกันเวลา 7 นาฬิกา 30 นาทีครับ`);
+                showToast(`ลงทะเบียนสำเร็จ! ข้อมูลของคุณ ${name} (${bib}) บันทึกเข้าระบบแล้ว`);
+                
+                document.getElementById('fullName').value = "";
+                document.getElementById('bibNumber').value = generateRandomBib();
+            });
+
+            // Simulate QR Camera Scan for Registration
+            document.getElementById('btnSimScanRegQR').addEventListener('click', () => {
+                const modal = document.getElementById('qrScannerModal');
+                document.getElementById('qrModalTitle').textContent = "สแกน QR ลงทะเบียนหน้างาน";
+                document.getElementById('qrModalSubtitle').textContent = "กำลังเชื่อมต่อแบบฟอร์มลงทะเบียน Kham Kong Run #Special 2026...";
+                modal.classList.remove('hidden');
+                playBeep(1046, 0.12);
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    document.getElementById('fullName').focus();
+                    showToast("สแกน QR ลงทะเบียนสำเร็จ! กรุณากรอกชื่อ-สกุลและเลือกเพศ");
+                }, 1300);
+            });
+
+            // Finish QR Scan Button (Checkpoint 2)
+            document.getElementById('btnScanFinishQR').addEventListener('click', () => {
+                const targetId = document.getElementById('finishBibSelect').value;
+                if (!targetId) {
+                    showToast("กรุณาลงทะเบียนนักวิ่งก่อนสแกนเส้นชัยครับ");
+                    return;
+                }
+
+                const modal = document.getElementById('qrScannerModal');
+                document.getElementById('qrModalTitle').textContent = "กำลังสแกน QR ป้ายเส้นชัย (5 KM)";
+                document.getElementById('qrModalSubtitle').textContent = "ณ โฮงเฮียนแม่น้ำของ • กำลังประมวลผลเวลาและอันดับ...";
+                modal.classList.remove('hidden');
+                playBeep(1046, 0.12);
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    processFinishScan(targetId);
+                }, 1200);
+            });
+
+            document.getElementById('btnCancelScan').addEventListener('click', () => {
+                document.getElementById('qrScannerModal').classList.add('hidden');
+            });
+
+            // Race Director Simulation Controls
+            document.getElementById('btnSimPreStart').addEventListener('click', () => {
+                useRealClock = false;
+                simBaseTime = new Date();
+                simBaseTime.setHours(7, 15, 0, 0);
+                simPageLoadTime = Date.now();
+                simOffsetMs = 0;
+                document.getElementById('clockModeBadge').textContent = "โหมดจำลองเวลา: ก่อนปล่อยตัว";
+                showToast("ตั้งเวลาจำลองเป็น 07:15:00 น. (รอปล่อยตัว)");
+            });
+
+            document.getElementById('btnSimMassStart').addEventListener('click', () => {
+                useRealClock = false;
+                simBaseTime = new Date();
+                simBaseTime.setHours(7, 30, 0, 0);
+                simPageLoadTime = Date.now();
+                simOffsetMs = 0;
+                document.getElementById('clockModeBadge').textContent = "โหมดจำลองเวลา: ปล่อยตัวแล้ว!";
+                playCelebrationAudio();
+                speakThai("ถึงเวลา 7 นาฬิกา 30 นาทีแล้ว! ปล่อยตัวนักวิ่ง Kham Kong Run Special 2026 ณ โฮงเฮียนแม่น้ำของ ระยะทาง 5 กิโลเมตร เริ่มจับเวลาพร้อมกันครับ!");
+                showToast("ปล่อยตัวพร้อมกัน 07:30:00 น.! ระบบเริ่มนับเวลาการแข่งขันแล้ว");
+            });
+
+            document.getElementById('btnSimAdd25Min').addEventListener('click', () => {
+                useRealClock = false;
+                const now = getCurrentEventTime();
+                const massStart = getMassStartTime(now);
+                if (now.getTime() < massStart.getTime()) {
+                    // Jump directly to 07:55:10 (25m 10s after start)
+                    simBaseTime = new Date();
+                    simBaseTime.setHours(7, 55, 10, 0);
+                    simPageLoadTime = Date.now();
+                    simOffsetMs = 0;
+                } else {
+                    simOffsetMs += 25 * 60 * 1000;
+                }
+                document.getElementById('clockModeBadge').textContent = "โหมดจำลองเวลา (+25 นาที)";
+                showToast("เลื่อนเวลาจำลองไปข้างหน้า +25 นาที พร้อมสแกนเข้าเส้นชัย!");
+            });
+
+            document.getElementById('btnUseRealClock').addEventListener('click', () => {
+                useRealClock = true;
+                document.getElementById('clockModeBadge').textContent = "เวลาจริงของเครื่อง (Real-time)";
+                showToast("สลับกลับไปใช้เวลาจริงของเครื่องแล้ว");
+            });
+
+            // Audio Controls
+            document.getElementById('btnToggleAudio').addEventListener('click', () => {
+                audioEnabled = !audioEnabled;
+                const label = document.getElementById('audioLabel');
+                const btn = document.getElementById('btnToggleAudio');
+                if (audioEnabled) {
+                    label.textContent = "เสียงพากย์: เปิด";
+                    btn.classList.replace('text-rose-400', 'text-emerald-400');
+                    playBeep(880, 0.1);
+                } else {
+                    label.textContent = "เสียงพากย์: ปิด";
+                    btn.classList.replace('text-emerald-400', 'text-rose-400');
+                    window.speechSynthesis.cancel();
+                }
+            });
+
+            document.getElementById('btnCheerHorn').addEventListener('click', () => {
+                playCelebrationAudio();
+                speakThai("สู้ๆ ครับนักวิ่งทุกท่าน เส้นชัยโฮงเฮียนแม่น้ำของรออยู่ข้างหน้าครับ!");
+            });
+
+            document.getElementById('btnReplayAnnouncement').addEventListener('click', () => {
+                if (lastAnnouncementText) {
+                    speakThai(lastAnnouncementText);
+                } else {
+                    speakThai("ยินดีต้อนรับสู่งานวิ่ง คำของรัน สเปเชียล 2026 ณ โฮงเฮียนแม่น้ำของ ระยะทาง 5 กิโลเมตรครับ");
+                }
+            });
+
+            document.getElementById('btnCertReplayVoice').addEventListener('click', () => {
+                if (lastAnnouncementText) speakThai(lastAnnouncementText);
+            });
+
+            // Filter Tabs
+            document.querySelectorAll('.filter-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-tab').forEach(b => {
+                        b.className = "filter-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition";
+                    });
+                    btn.className = "filter-tab px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition";
+                    currentFilter = btn.dataset.filter;
+                    renderTable();
+                    lucide.createIcons();
+                });
+            });
+
+            // Switch Runner Modal
+            document.getElementById('btnSelectRunnerModal').addEventListener('click', () => {
+                const list = document.getElementById('switchRunnerList');
+                list.innerHTML = runnersDB.map(r => `
+                    <div onclick="selectRunnerFromModal('${r.id}')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 cursor-pointer flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-bold text-white">${r.name} <span class="text-amber-300 font-mono-num text-xs">(${r.bib})</span></p>
+                            <p class="text-xs text-slate-400">ประเภท${r.gender} • ${r.status === 'FINISHED' ? 'เข้าเส้นชัยแล้ว' : 'รอวิ่ง/กำลังวิ่ง'}</p>
+                        </div>
+                        <span class="text-xs text-amber-400 font-semibold">เลือก</span>
+                    </div>
+                `).join('');
+                document.getElementById('runnerSwitchModal').classList.remove('hidden');
+            });
+
+            document.getElementById('btnCloseSwitchModal').addEventListener('click', () => {
+                document.getElementById('runnerSwitchModal').classList.add('hidden');
+            });
+
+            // Sheet Webhook Modal
+            document.getElementById('btnOpenSheetConfig').addEventListener('click', () => {
+                document.getElementById('sheetConfigModal').classList.remove('hidden');
+            });
+            document.getElementById('btnCloseSheetModal').addEventListener('click', () => {
+                document.getElementById('sheetConfigModal').classList.add('hidden');
+            });
+            document.getElementById('btnSaveSheetWebhook').addEventListener('click', () => {
+                sheetWebhookUrl = document.getElementById('sheetWebhookInput').value.trim();
+                localStorage.setItem('kkr26_sheet_webhook', sheetWebhookUrl);
+                document.getElementById('sheetConfigModal').classList.add('hidden');
+                showToast("บันทึกการตั้งค่า Google Sheet Webhook เรียบร้อยแล้ว");
+            });
+
+            // Close Certificate Modal
+            document.getElementById('btnCloseCertModal').addEventListener('click', () => {
+                document.getElementById('certificateModal').classList.add('hidden');
+            });
+
+            // Export CSV
+            document.getElementById('btnExportCSV').addEventListener('click', exportToCSV);
+        });
+
+        window.selectRunnerFromModal = function(id) {
+            selectedRunnerId = id;
+            saveDB();
+            updateUI();
+            document.getElementById('runnerSwitchModal').classList.add('hidden');
+        };
     </script>
 </body>
 </html>
