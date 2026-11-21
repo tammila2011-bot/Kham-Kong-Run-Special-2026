@@ -142,7 +142,7 @@
         </div>
     </header>
 
-    <!-- Main Action Navigation Bar (ซ่อนปุ่มกดเข้าเส้นชัยตรง เพื่อป้องกันการเผลอกดระหว่างวิ่ง) -->
+    <!-- Main Action Navigation Bar (QR-Only Finish) -->
     <nav class="max-w-5xl mx-auto px-4 -mt-5 relative z-20">
         <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
             <button id="navBtnRegister" class="bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold py-3 px-3 rounded-2xl shadow-lg shadow-orange-500/25 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
@@ -273,7 +273,7 @@
                 </form>
             </div>
 
-            <!-- Checkpoint 2: Finish Line Info (QR Scan Only Protection) -->
+            <!-- Checkpoint 2: Finish Line Info & Audio Test -->
             <div id="finishSection" class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col justify-between border-emerald-500/25">
                 <div>
                     <div class="flex items-center justify-between border-b border-slate-700/70 pb-4 mb-5">
@@ -310,14 +310,14 @@
                 <!-- Voice Cheer & Announcement Controls -->
                 <div class="mt-5 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span class="text-slate-400 flex items-center gap-1">
-                        <i data-lucide="mic" class="w-3.5 h-3.5 text-amber-400"></i> ระบบโฆษก & เสียงเชียร์:
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-amber-400"></i> ทดสอบเสียงโฆษก:
                     </span>
                     <div class="flex gap-2">
                         <button id="btnPlayCheer" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition flex items-center gap-1">
-                            <i data-lucide="party-popper" class="w-3.5 h-3.5"></i> เสียงแตร & เชียร์
+                            <i data-lucide="party-popper" class="w-3.5 h-3.5"></i> ทดสอบเสียงแตร & พากย์
                         </button>
                         <button id="btnReplayVoice" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition flex items-center gap-1">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ฟังเสียงประกาศซ้ำ
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ฟังเสียงซ้ำ
                         </button>
                     </div>
                 </div>
@@ -382,7 +382,7 @@
             </div>
         </footer>
 
-        <!-- Hidden Staff Simulation Drawer (รวมปุ่มทดสอบสแกนเข้าเส้นชัยสำหรับทีมงาน) -->
+        <!-- Hidden Staff Simulation Drawer -->
         <div id="staffSimDrawer" class="hidden bg-slate-900/95 border border-amber-500/30 rounded-2xl p-4 text-xs space-y-3">
             <div class="flex items-center justify-between">
                 <span class="font-bold text-amber-300 flex items-center gap-1.5">
@@ -410,7 +410,7 @@
         </div>
     </main>
 
-    <!-- Modal: QR Auto-Action Modal (เปิดขึ้นเมื่อสแกน QR ?action=register หรือ ?action=finish เท่านั้น) -->
+    <!-- Modal: QR Auto-Action Modal -->
     <div id="qrAutoModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
             <button id="btnCloseQrAutoModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
@@ -611,6 +611,7 @@
         let lastAnnouncementText = "";
         let currentFilter = "ALL";
         let leaderboardData = [];
+        let sharedAudioCtx = null;
 
         let myProfile = JSON.parse(localStorage.getItem('kkr26_my_profile')) || null;
 
@@ -624,12 +625,31 @@
         ];
 
         // =========================================================================
-        // 2. AUDIO & THAI SPEECH ENGINE
+        // 2. AUDIO & THAI SPEECH ENGINE (UNLOCKED ON MOBILE TOUCH)
         // =========================================================================
+        function unlockMobileAudio() {
+            if (!audioEnabled) return;
+            try {
+                if (!sharedAudioCtx) {
+                    sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (sharedAudioCtx.state === 'suspended') {
+                    sharedAudioCtx.resume();
+                }
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.getVoices();
+                    const silent = new SpeechSynthesisUtterance('');
+                    silent.volume = 0;
+                    window.speechSynthesis.speak(silent);
+                }
+            } catch (e) {}
+        }
+
         function playCheerSound() {
             if (!audioEnabled) return;
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                unlockMobileAudio();
+                const ctx = sharedAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
                 const notes = [392.00, 493.88, 587.33, 783.99];
                 notes.forEach((freq, i) => {
                     const osc = ctx.createOscillator();
@@ -637,7 +657,7 @@
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.08);
                     gain.gain.setValueAtTime(0.001, ctx.currentTime + i * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + i * 0.08 + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + i * 0.08 + 0.05);
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.65);
                     osc.connect(gain);
                     gain.connect(ctx.destination);
@@ -657,7 +677,7 @@
                 filter.type = 'bandpass';
                 filter.frequency.value = 1150;
                 const nGain = ctx.createGain();
-                nGain.gain.setValueAtTime(0.11, ctx.currentTime);
+                nGain.gain.setValueAtTime(0.14, ctx.currentTime);
                 nGain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 1.6);
                 noise.connect(filter);
                 filter.connect(nGain);
@@ -669,12 +689,13 @@
         function playBeep(freq = 880, duration = 0.14) {
             if (!audioEnabled) return;
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                unlockMobileAudio();
+                const ctx = sharedAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
                 osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -687,12 +708,18 @@
             lastAnnouncementText = text;
             if (!audioEnabled) return;
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utter = new SpeechSynthesisUtterance(text);
-                utter.lang = 'th-TH';
-                utter.rate = 0.96;
-                utter.pitch = 1.05;
-                window.speechSynthesis.speak(utter);
+                try {
+                    window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(text);
+                    const voices = window.speechSynthesis.getVoices();
+                    const thaiVoice = voices.find(v => v.lang && v.lang.toLowerCase().includes('th'));
+                    if (thaiVoice) utter.voice = thaiVoice;
+                    utter.lang = 'th-TH';
+                    utter.rate = 0.96;
+                    utter.pitch = 1.05;
+                    utter.volume = 1.0;
+                    window.speechSynthesis.speak(utter);
+                } catch (e) {}
             }
         }
 
@@ -713,7 +740,7 @@
         }
 
         function calcPace(durationSec) {
-            if (!durationSec || durationSec <= 0) return { min: 0, sec: 0, text: "--'--"" };
+            if (!durationSec || durationSec <= 0) return { min: 0, sec: 0, text: "--'--\"" };
             const totalMin = durationSec / 60;
             const paceDec = totalMin / RACE_DISTANCE_KM;
             let pMin = Math.floor(paceDec);
@@ -779,16 +806,18 @@
             try {
                 const res = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
+                    redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-                const json = await res.json();
-                syncLabel.textContent = "Google Sheet: ซิงค์แล้ว ✓";
+                const text = await res.text();
+                const json = JSON.parse(text);
+                syncLabel.textContent = "Google Sheet: บันทึกสำเร็จ ✓";
                 return json;
             } catch (err) {
-                console.warn("GAS POST fallback:", err);
-                syncLabel.textContent = "Google Sheet: โหมดออฟไลน์สำรอง";
-                return null;
+                console.warn("GAS POST error:", err);
+                syncLabel.textContent = "Google Sheet: เชื่อมต่อไม่สำเร็จ (เช็กสิทธิ์ Anyone)";
+                return { error: true };
             }
         }
 
@@ -796,7 +825,7 @@
             const syncLabel = document.getElementById('syncStatusText');
             syncLabel.textContent = "กำลังโหลดตารางอันดับ...";
             try {
-                const res = await fetch(GAS_WEB_APP_URL);
+                const res = await fetch(`${GAS_WEB_APP_URL}?t=${Date.now()}`, { redirect: 'follow' });
                 if (!res.ok) throw new Error("Network response not ok");
                 const data = await res.json();
                 if (Array.isArray(data)) {
@@ -808,7 +837,7 @@
                     return;
                 }
             } catch (err) {
-                console.warn("GAS GET fallback:", err);
+                console.warn("GAS GET error:", err);
                 syncLabel.textContent = "Google Sheet: ใช้ข้อมูลในเครื่อง";
             }
 
@@ -825,7 +854,7 @@
             const box = document.getElementById('toastBox');
             document.getElementById('toastMessage').textContent = msg;
             box.classList.remove('hidden');
-            setTimeout(() => box.classList.add('hidden'), 4200);
+            setTimeout(() => box.classList.add('hidden'), 4500);
         }
 
         function generateBib() {
@@ -846,6 +875,12 @@
             lastName = lastName.trim();
             if (!bib || !firstName || !lastName) return;
 
+            // 1. ปลดล็อกเสียงและเล่นเสียงพากย์ทันทีในจังหวะกดปุ่ม (ก่อน await fetch)
+            unlockMobileAudio();
+            playBeep(880, 0.16);
+            announceThai(`ลงทะเบียนสำเร็จครับ คุณ${firstName} ${lastName} หมายเลขบิบ ${bib} ประเภท${gender} เชิญรอปล่อยตัวพร้อมกันเวลา 7 นาฬิกา 00 นาทีครับ`);
+
+            // 2. อัปเดตหน้าจอทันที
             myProfile = { bib, firstName, lastName, gender, durationSec: null, rank: null };
             localStorage.setItem('kkr26_my_profile', JSON.stringify(myProfile));
 
@@ -859,10 +894,10 @@
 
             updateMyRunnerUI();
             renderLeaderboard();
-            playBeep(880, 0.18);
             showToast(`กำลังบันทึกข้อมูล ${firstName} ${lastName} (${bib}) เข้า Google Sheet...`);
 
-            await postToGAS({
+            // 3. ส่งข้อมูลไป Google Sheet
+            const res = await postToGAS({
                 action: 'register',
                 bib,
                 firstName,
@@ -870,9 +905,12 @@
                 gender
             });
 
-            announceThai(`ลงทะเบียนสำเร็จครับ คุณ${firstName} ${lastName} หมายเลขบิบ ${bib} ประเภท${gender} เชิญพักผ่อนรอปล่อยตัวพร้อมกันเวลา 7 นาฬิกา 00 นาทีครับ`);
-            showToast(`ลงทะเบียนสำเร็จ! ข้อมูลของคุณ ${firstName} (${bib}) อยู่ในระบบแล้ว`);
-            fetchLeaderboardFromGAS();
+            if (res && res.status === 'registered') {
+                showToast(`บันทึกเข้า Google Sheet เรียบร้อยแล้ว! (${bib} ${firstName})`);
+                fetchLeaderboardFromGAS();
+            } else {
+                showToast(`บันทึกในเครื่องแล้ว (หากไม่เข้า Sheet ให้กด New Deployment -> สิทธิ์ Anyone ใน Apps Script)`);
+            }
         }
 
         async function handleFinish(bib) {
@@ -881,6 +919,8 @@
                 showToast("กรุณากรอกเลข BIB ก่อนยืนยันเข้าเส้นชัยครับ");
                 return;
             }
+
+            unlockMobileAudio();
 
             const now = getCurrentClock();
             const startTime = new Date(OFFICIAL_START_ISO);
@@ -892,7 +932,8 @@
                 return;
             }
 
-            showToast(`กำลังประมวลผลเข้าเส้นชัยสำหรับ BIB ${bib}...`);
+            playCheerSound();
+            showToast(`กำลังบันทึกเวลาเข้าเส้นชัยสำหรับ BIB ${bib}...`);
 
             const gasResponse = await postToGAS({
                 action: 'finish',
@@ -920,7 +961,6 @@
             myProfile = { bib, firstName, lastName, gender, durationSec: finalDurationSec, rank };
             localStorage.setItem('kkr26_my_profile', JSON.stringify(myProfile));
 
-            // Clear ?action=finish from URL so refreshing won't accidentally re-trigger
             if (window.history && window.history.replaceState) {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
@@ -929,14 +969,13 @@
             renderLeaderboard();
 
             confetti({ particleCount: 150, spread: 85, origin: { y: 0.6 } });
-            playCheerSound();
 
             const paceObj = calcPace(finalDurationSec);
             const mins = Math.floor(finalDurationSec / 60);
             const secs = finalDurationSec % 60;
             const speechText = `ยินดีด้วยครับ คุณ${firstName} ${lastName} หมายเลขบิบ ${bib} เข้าเส้นชัยระยะทาง 5 กิโลเมตร ณ โฮงเฮียนแม่น้ำของ ใช้เวลา ${mins} นาที ${secs} วินาที ค่าเพซเฉลี่ย ${paceObj.min} นาที ${paceObj.sec} วินาทีต่อกิโลเมตร คว้าลำดับที่ ${rank} ประเภท${gender} ครับ`;
 
-            setTimeout(() => announceThai(speechText), 600);
+            announceThai(speechText);
             openCertificateModal(myProfile);
         }
 
@@ -980,7 +1019,7 @@
             } else {
                 badge.className = "px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold";
                 badge.textContent = "ลงทะเบียนแล้ว • รอปล่อยตัว / กำลังวิ่ง";
-                subInfo.textContent = "ข้อมูลเข้าสู่ Google Sheet แล้ว เมื่อวิ่งครบ 5 กม. ให้สแกนป้าย QR ที่เส้นชัย";
+                subInfo.textContent = "ข้อมูลเข้าสู่ระบบแล้ว เมื่อวิ่งครบ 5 กม. ให้สแกนป้าย QR ที่เส้นชัย";
                 certBtn.classList.add('hidden');
                 qrNotice.classList.remove('hidden');
             }
@@ -1080,7 +1119,7 @@
         }
 
         // =========================================================================
-        // 7. URL QUERY PARAMETER HANDLER (?action=register & ?action=finish)
+        // 7. URL QUERY PARAMETER HANDLER
         // =========================================================================
         function checkUrlActionParams() {
             const params = new URLSearchParams(window.location.search);
@@ -1108,6 +1147,10 @@
             setInterval(tickClock, 500);
             checkUrlActionParams();
             if (window.lucide) lucide.createIcons();
+
+            // ปลดล็อกเสียงทันทีที่ผู้ใช้แตะหน้าจอครั้งแรก
+            document.body.addEventListener('touchstart', unlockMobileAudio, { once: true });
+            document.body.addEventListener('click', unlockMobileAudio, { once: true });
 
             document.getElementById('navBtnRegister').addEventListener('click', () => {
                 document.getElementById('registerSection').scrollIntoView({ behavior: 'smooth' });
@@ -1200,7 +1243,7 @@
 
             document.getElementById('btnPlayCheer').addEventListener('click', () => {
                 playCheerSound();
-                announceThai("สู้ๆ ครับนักวิ่งทุกท่าน เส้นชัยโฮงเฮียนแม่น้ำของรออยู่ข้างหน้าครับ!");
+                announceThai("ทดสอบระบบเสียงสำเร็จครับ ยินดีต้อนรับสู่งานวิ่ง คำของรัน สเปเชียล 2026 ณ โฮงเฮียนแม่น้ำของครับ!");
             });
 
             document.getElementById('btnReplayVoice').addEventListener('click', () => {
