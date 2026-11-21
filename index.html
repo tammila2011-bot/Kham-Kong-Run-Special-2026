@@ -10,6 +10,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- HTML5 QR Code Camera Scanner -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <!-- Google Fonts: Kanit & JetBrains Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -36,6 +38,10 @@
             background: linear-gradient(90deg, #fde047 0%, #fb923c 50%, #f97316 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+        #qrCameraReader video {
+            border-radius: 1rem;
+            object-fit: cover;
         }
         @media print {
             body * {
@@ -142,16 +148,16 @@
         </div>
     </header>
 
-    <!-- Main Action Navigation Bar (QR-Only Finish) -->
+    <!-- Main Action Navigation Bar -->
     <nav class="max-w-5xl mx-auto px-4 -mt-5 relative z-20">
         <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
             <button id="navBtnRegister" class="bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold py-3 px-3 rounded-2xl shadow-lg shadow-orange-500/25 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
                 <i data-lucide="user-plus" class="w-5 h-5 shrink-0"></i>
                 <span>ลงทะเบียน (BIB)</span>
             </button>
-            <button id="navBtnStartInfo" class="bg-slate-900/95 hover:bg-slate-800 border border-sky-500/40 text-sky-300 font-bold py-3 px-3 rounded-2xl shadow-lg flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
-                <i data-lucide="map-pin" class="w-5 h-5 text-sky-400 shrink-0"></i>
-                <span>กติกา & จุด Finish</span>
+            <button id="navBtnOpenCamera" class="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold py-3 px-3 rounded-2xl shadow-lg shadow-emerald-500/25 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
+                <i data-lucide="camera" class="w-5 h-5 shrink-0"></i>
+                <span>เปิดกล้องสแกนเส้นชัย</span>
             </button>
             <button id="navBtnPersonalCert" class="bg-slate-900/95 hover:bg-slate-800 border border-amber-400/40 text-amber-300 font-bold py-3 px-3 rounded-2xl shadow-lg flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
                 <i data-lucide="award" class="w-5 h-5 text-amber-400 shrink-0"></i>
@@ -186,7 +192,7 @@
                     </div>
                 </div>
 
-                <!-- Live Personal Timer & QR-Only Finish Notice -->
+                <!-- Live Personal Timer & Camera Scan Action -->
                 <div class="w-full md:w-auto flex flex-col sm:flex-row md:flex-col items-center md:items-end gap-2 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
                     <div class="text-center md:text-right">
                         <span class="text-[11px] text-slate-400 block">เวลาวิ่งของคุณ (ระยะ 5.00 กม.)</span>
@@ -197,10 +203,9 @@
                         <button id="btnOpenCertQuick" class="hidden px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow transition">
                             <i data-lucide="award" class="w-4 h-4"></i> เปิดใบประกาศเกียรติบัตร
                         </button>
-                        <div id="qrFinishRequiredBadge" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-medium flex items-center gap-1.5">
-                            <i data-lucide="qr-code" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span>สแกนป้าย QR ที่เส้นชัยเพื่อบันทึกเวลา</span>
-                        </div>
+                        <button id="btnBannerOpenCamera" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow transition">
+                            <i data-lucide="camera" class="w-4 h-4"></i> เปิดกล้องสแกน QR เส้นชัย
+                        </button>
                     </div>
                 </div>
             </div>
@@ -209,7 +214,7 @@
         <!-- Two-Column Checkpoints -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            <!-- Checkpoint 1: Registration Form -->
+            <!-- Checkpoint 1: Registration Form with Duplicate BIB Checker -->
             <div id="registerSection" class="glass-panel rounded-3xl p-6 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-700/70 pb-4 mb-5">
                     <div class="flex items-center gap-3">
@@ -218,7 +223,7 @@
                         </div>
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">จุดที่ 1 • โฮงเฮียนแม่น้ำของ</span>
-                            <h3 class="text-lg font-bold text-white">ลงทะเบียนนักวิ่ง (ส่งเข้า Google Sheet)</h3>
+                            <h3 class="text-lg font-bold text-white">ลงทะเบียนนักวิ่ง (ป้องกันเลข BIB ซ้ำ)</h3>
                         </div>
                     </div>
                 </div>
@@ -230,9 +235,13 @@
                             <input type="text" id="regBib" required placeholder="เช่น KK-101"
                                 class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm font-mono-num font-bold text-amber-300 uppercase focus:outline-none focus:border-amber-400 transition">
                             <button type="button" id="btnRandomBib" class="px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs text-slate-200 font-medium flex items-center gap-1 shrink-0 transition">
-                                <i data-lucide="shuffle" class="w-4 h-4 text-amber-400"></i> สุ่ม BIB
+                                <i data-lucide="shuffle" class="w-4 h-4 text-amber-400"></i> สุ่ม BIB ว่าง
                             </button>
                         </div>
+                        <!-- Live BIB Availability Status -->
+                        <p id="regBibStatusMsg" class="text-[11px] mt-1.5 flex items-center gap-1 text-emerald-400">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> <span>เลข BIB นี้พร้อมใช้งาน</span>
+                        </p>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -273,37 +282,30 @@
                 </form>
             </div>
 
-            <!-- Checkpoint 2: Finish Line Info & Audio Test -->
-            <div id="finishSection" class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col justify-between border-emerald-500/25">
+            <!-- Checkpoint 2: In-App QR Camera Scanner for Finish Line -->
+            <div id="finishSection" class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col justify-between border-emerald-500/30">
                 <div>
                     <div class="flex items-center justify-between border-b border-slate-700/70 pb-4 mb-5">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400">
-                                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                <i data-lucide="scan-line" class="w-5 h-5"></i>
                             </div>
                             <div>
                                 <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">จุดที่ 2 • เส้นชัยโฮงเฮียนแม่น้ำของ</span>
-                                <h3 class="text-lg font-bold text-white">การบันทึกเวลาเข้าเส้นชัย (5.00 กม.)</h3>
+                                <h3 class="text-lg font-bold text-white">สแกน QR Code จุด Finish (5.00 กม.)</h3>
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-slate-950/75 border border-emerald-500/30 rounded-2xl p-4 space-y-3">
-                        <div class="flex items-start gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                                <i data-lucide="qr-code" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-bold text-emerald-300">ต้องสแกน QR Code ที่ป้ายเส้นชัยเท่านั้น</h4>
-                                <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                                    เพื่อความเป็นธรรมและป้องกันการเผลอกดปุ่มระหว่างวิ่ง ระบบจะเปิดหน้าต่างบันทึกเวลาเข้าเส้นชัยให้เฉพาะเมื่อนักวิ่งวิ่งครบรอบวงกลม 5 กม. และใช้กล้องมือถือ <strong>สแกนป้าย QR Code ณ จุดเส้นชัยโฮงเฮียนแม่น้ำของ</strong> เท่านั้นครับ
-                                </p>
-                            </div>
-                        </div>
-                        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                            <span>• จุดปล่อยตัว: 07:00:00 น.</span>
-                            <span>• ระบบจับเวลาอัตโนมัติ (Gun Time)</span>
-                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            เมื่อวิ่งครบรอบวงกลม 5 กม. กลับมาถึง <strong>โฮงเฮียนแม่น้ำของ</strong> ให้กดปุ่มเปิดกล้องด้านล่างเพื่อส่องป้าย <strong>QR Code จุดเส้นชัย</strong> ระบบจะบันทึกสถิติและออกเกียรติบัตรให้ทันทีครับ
+                        </p>
+
+                        <button id="btnSectionOpenCamera" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition">
+                            <i data-lucide="camera" class="w-5 h-5"></i>
+                            <span>เปิดกล้องสแกนป้าย QR จุดเส้นชัย</span>
+                        </button>
                     </div>
                 </div>
 
@@ -410,6 +412,31 @@
         </div>
     </main>
 
+    <!-- Modal: Live Camera QR Code Scanner -->
+    <div id="cameraScannerModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i data-lucide="camera" class="w-5 h-5 text-emerald-400"></i> ส่องกล้องสแกนป้าย QR Code
+                </h3>
+                <button id="btnCloseCameraModal" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            
+            <p class="text-xs text-slate-300 text-center">
+                หันกล้องไปที่ป้าย <strong>QR Code จุดลงทะเบียน</strong> หรือ <strong>จุดเส้นชัย (Finish)</strong> ณ โฮงเฮียนแม่น้ำของ
+            </p>
+
+            <!-- Camera Viewport -->
+            <div id="qrCameraReader" class="w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800 min-h-[260px] flex items-center justify-center"></div>
+
+            <p id="cameraStatusText" class="text-xs text-center text-amber-300">กำลังเปิดกล้อง...</p>
+
+            <button id="btnCancelCamera" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold">
+                ปิดกล้อง
+            </button>
+        </div>
+    </div>
+
     <!-- Modal: QR Auto-Action Modal -->
     <div id="qrAutoModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
@@ -429,8 +456,9 @@
                         <label class="block text-xs text-slate-300 mb-1">เลข BIB *</label>
                         <div class="flex gap-2">
                             <input type="text" id="modalRegBib" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num font-bold text-amber-300 uppercase">
-                            <button type="button" id="btnModalRandomBib" class="px-3 rounded-xl bg-slate-800 text-xs text-slate-200 border border-slate-700">สุ่ม BIB</button>
+                            <button type="button" id="btnModalRandomBib" class="px-3 rounded-xl bg-slate-800 text-xs text-slate-200 border border-slate-700">สุ่ม BIB ว่าง</button>
                         </div>
+                        <p id="modalRegBibStatusMsg" class="text-[11px] mt-1 text-emerald-400">เลข BIB นี้พร้อมใช้งาน</p>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
@@ -455,7 +483,7 @@
                             </label>
                         </div>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-sm shadow-lg">
+                    <button type="submit" id="btnModalSubmitReg" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-sm shadow-lg">
                         ยืนยันลงทะเบียนเข้า Google Sheet
                     </button>
                 </form>
@@ -478,28 +506,6 @@
                 <button id="btnModalSubmitFinish" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-base shadow-lg">
                     ยืนยันเข้าเส้นชัย & รับใบประกาศ!
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Route & Start Point Info -->
-    <div id="startInfoModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-sky-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i data-lucide="map-pin" class="w-5 h-5 text-sky-400"></i> กติกา & จุด Finish
-                </h3>
-                <button id="btnCloseStartInfoModal" class="text-slate-400 hover:text-white text-xl">&times;</button>
-            </div>
-            <div class="space-y-2.5 text-xs sm:text-sm text-slate-300">
-                <p><strong class="text-amber-300">สถานที่ปล่อยตัว & เส้นชัย:</strong> โฮงเฮียนแม่น้ำของ</p>
-                <p><strong class="text-amber-300">วันและเวลาปล่อยตัว (Mass Start):</strong> วันจันทร์ที่ 7 ธันวาคม 2569 เวลา 07:00:00 น.</p>
-                <p><strong class="text-amber-300">รูปแบบเส้นทาง:</strong> วิ่งรอบวงกลม ระยะทาง 5.00 กิโลเมตร</p>
-                <div class="p-3 rounded-xl bg-slate-950 border border-emerald-500/30 text-xs text-slate-300 space-y-1">
-                    <p class="text-emerald-400 font-bold">🛡️ ระบบป้องกันการกดผิดระหว่างวิ่ง:</p>
-                    <p>1. เมื่อถึงเวลา 07:00 น. ระบบจะเริ่มจับเวลาอัตโนมัติพร้อมกัน</p>
-                    <p>2. เมื่อวิ่งกลับมาถึงเส้นชัย <strong>ต้องใช้มือถือสแกนป้าย QR Code ที่จุดเส้นชัยเท่านั้น</strong> ระบบจึงจะบันทึกสถิติและออกเกียรติบัตรให้</p>
-                </div>
             </div>
         </div>
     </div>
@@ -612,6 +618,7 @@
         let currentFilter = "ALL";
         let leaderboardData = [];
         let sharedAudioCtx = null;
+        let html5QrScanner = null;
 
         let myProfile = JSON.parse(localStorage.getItem('kkr26_my_profile')) || null;
 
@@ -625,7 +632,7 @@
         ];
 
         // =========================================================================
-        // 2. AUDIO & THAI SPEECH ENGINE (UNLOCKED ON MOBILE TOUCH)
+        // 2. AUDIO & THAI SPEECH ENGINE
         // =========================================================================
         function unlockMobileAudio() {
             if (!audioEnabled) return;
@@ -812,18 +819,18 @@
                 });
                 const text = await res.text();
                 const json = JSON.parse(text);
-                syncLabel.textContent = "Google Sheet: บันทึกสำเร็จ ✓";
+                syncLabel.textContent = "Google Sheet: อัปเดตแล้ว ✓";
                 return json;
             } catch (err) {
                 console.warn("GAS POST error:", err);
-                syncLabel.textContent = "Google Sheet: เชื่อมต่อไม่สำเร็จ (เช็กสิทธิ์ Anyone)";
+                syncLabel.textContent = "Google Sheet: เชื่อมต่อไม่สำเร็จ";
                 return { error: true };
             }
         }
 
         async function fetchLeaderboardFromGAS() {
             const syncLabel = document.getElementById('syncStatusText');
-            syncLabel.textContent = "กำลังโหลดตารางอันดับ...";
+            syncLabel.textContent = "กำลังโหลดข้อมูล...";
             try {
                 const res = await fetch(`${GAS_WEB_APP_URL}?t=${Date.now()}`, { redirect: 'follow' });
                 if (!res.ok) throw new Error("Network response not ok");
@@ -834,6 +841,7 @@
                     syncLabel.textContent = "Google Sheet: อัปเดตล่าสุด ✓";
                     renderLeaderboard();
                     updateMyRunnerUI();
+                    validateBibInput(document.getElementById('regBib').value, 'regBibStatusMsg', 'btnSubmitRegister');
                     return;
                 }
             } catch (err) {
@@ -848,17 +856,119 @@
         }
 
         // =========================================================================
-        // 5. RUNNER ACTIONS: REGISTER & QR-ONLY FINISH LINE
+        // 5. DUPLICATE BIB CHECKER & UNIQUE BIB GENERATOR
+        // =========================================================================
+        function isBibTaken(bib) {
+            const clean = String(bib || '').trim().toUpperCase();
+            if (!clean) return false;
+            return leaderboardData.some(r => String(r.bib || '').trim().toUpperCase() === clean);
+        }
+
+        function generateUniqueBib() {
+            let candidate = "";
+            let attempts = 0;
+            do {
+                candidate = `KK-${Math.floor(100 + Math.random() * 899)}`;
+                attempts++;
+            } while (isBibTaken(candidate) && attempts < 100);
+            return candidate;
+        }
+
+        function validateBibInput(bibValue, statusElId, submitBtnId) {
+            const statusEl = document.getElementById(statusElId);
+            const submitBtn = document.getElementById(submitBtnId);
+            if (!statusEl || !submitBtn) return true;
+
+            const clean = String(bibValue || '').trim().toUpperCase();
+            if (!clean) {
+                statusEl.className = "text-[11px] mt-1.5 text-slate-400";
+                statusEl.textContent = "กรุณากรอกเลข BIB หรือกดสุ่ม BIB ว่าง";
+                submitBtn.disabled = false;
+                return false;
+            }
+
+            const existing = leaderboardData.find(r => String(r.bib || '').trim().toUpperCase() === clean);
+            if (existing) {
+                statusEl.className = "text-[11px] mt-1.5 text-rose-400 font-semibold";
+                statusEl.textContent = `⚠️ เลข BIB ${clean} ซ้ำกับคุณ "${existing.firstName} ${existing.lastName}" กรุณาเปลี่ยนเลขใหม่`;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                return false;
+            } else {
+                statusEl.className = "text-[11px] mt-1.5 text-emerald-400";
+                statusEl.textContent = `✓ เลข BIB ${clean} ว่าง สามารถลงทะเบียนได้`;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                return true;
+            }
+        }
+
+        // =========================================================================
+        // 6. IN-APP CAMERA QR CODE SCANNER
+        // =========================================================================
+        async function openCameraScanner() {
+            unlockMobileAudio();
+            const modal = document.getElementById('cameraScannerModal');
+            const statusText = document.getElementById('cameraStatusText');
+            modal.classList.remove('hidden');
+            statusText.textContent = "กำลังขออนุญาตเปิดกล้อง...";
+
+            try {
+                if (html5QrScanner) {
+                    await stopCameraScanner();
+                }
+                html5QrScanner = new Html5Qrcode("qrCameraReader");
+                await html5QrScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 220, height: 220 } },
+                    async (decodedText) => {
+                        playBeep(1046, 0.2);
+                        await stopCameraScanner();
+                        modal.classList.add('hidden');
+                        handleScannedQrText(decodedText);
+                    },
+                    (errorMessage) => {
+                        // ignore frame scan errors
+                    }
+                );
+                statusText.textContent = "ส่องกล้องไปที่ป้าย QR Code จุดเส้นชัย (Finish)";
+            } catch (err) {
+                console.error("Camera error:", err);
+                statusText.textContent = "ไม่สามารถเปิดกล้องในเบราว์เซอร์ได้ (กรุณาใช้แอปกล้องปกติของมือถือสแกนป้าย QR แทนครับ)";
+            }
+        }
+
+        async function stopCameraScanner() {
+            if (html5QrScanner) {
+                try {
+                    await html5QrScanner.stop();
+                    html5QrScanner.clear();
+                } catch (e) {}
+                html5QrScanner = null;
+            }
+        }
+
+        function handleScannedQrText(text) {
+            const raw = String(text || '').trim();
+            if (raw.toLowerCase().includes('action=finish') || raw.toUpperCase() === 'FINISH') {
+                openQrFinishModal();
+            } else if (raw.toLowerCase().includes('action=register') || raw.toUpperCase() === 'REGISTER') {
+                openQrRegisterModal();
+            } else {
+                showToast("สแกนพบ QR Code: " + raw);
+                // หากสแกนป้ายเส้นชัยที่ระบุชื่อ/รหัสงาน ให้เปิดหน้าบันทึกเส้นชัย
+                openQrFinishModal();
+            }
+        }
+
+        // =========================================================================
+        // 7. RUNNER ACTIONS: REGISTER & FINISH LINE
         // =========================================================================
         function showToast(msg) {
             const box = document.getElementById('toastBox');
             document.getElementById('toastMessage').textContent = msg;
             box.classList.remove('hidden');
-            setTimeout(() => box.classList.add('hidden'), 4500);
-        }
-
-        function generateBib() {
-            return `KK-${Math.floor(100 + Math.random() * 899)}`;
+            setTimeout(() => box.classList.add('hidden'), 4800);
         }
 
         function computeGenderRank(bib, gender) {
@@ -875,28 +985,15 @@
             lastName = lastName.trim();
             if (!bib || !firstName || !lastName) return;
 
-            // 1. ปลดล็อกเสียงและเล่นเสียงพากย์ทันทีในจังหวะกดปุ่ม (ก่อน await fetch)
-            unlockMobileAudio();
-            playBeep(880, 0.16);
-            announceThai(`ลงทะเบียนสำเร็จครับ คุณ${firstName} ${lastName} หมายเลขบิบ ${bib} ประเภท${gender} เชิญรอปล่อยตัวพร้อมกันเวลา 7 นาฬิกา 00 นาทีครับ`);
-
-            // 2. อัปเดตหน้าจอทันที
-            myProfile = { bib, firstName, lastName, gender, durationSec: null, rank: null };
-            localStorage.setItem('kkr26_my_profile', JSON.stringify(myProfile));
-
-            const existingIdx = leaderboardData.findIndex(r => String(r.bib).toUpperCase() === bib);
-            if (existingIdx >= 0) {
-                leaderboardData[existingIdx] = { ...leaderboardData[existingIdx], firstName, lastName, gender };
-            } else {
-                leaderboardData.push({ bib, firstName, lastName, gender, durationSec: "" });
+            if (isBibTaken(bib)) {
+                playBeep(300, 0.25);
+                showToast(`ไม่สามารถลงทะเบียนได้! เลข BIB ${bib} มีผู้ใช้งานแล้ว กรุณากด "สุ่ม BIB ว่าง"`);
+                return;
             }
-            localStorage.setItem('kkr26_cached_leaderboard', JSON.stringify(leaderboardData));
 
-            updateMyRunnerUI();
-            renderLeaderboard();
-            showToast(`กำลังบันทึกข้อมูล ${firstName} ${lastName} (${bib}) เข้า Google Sheet...`);
+            unlockMobileAudio();
+            showToast(`กำลังตรวจสอบและบันทึกข้อมูล ${firstName} (${bib}) เข้า Google Sheet...`);
 
-            // 3. ส่งข้อมูลไป Google Sheet
             const res = await postToGAS({
                 action: 'register',
                 bib,
@@ -905,12 +1002,26 @@
                 gender
             });
 
-            if (res && res.status === 'registered') {
-                showToast(`บันทึกเข้า Google Sheet เรียบร้อยแล้ว! (${bib} ${firstName})`);
-                fetchLeaderboardFromGAS();
-            } else {
-                showToast(`บันทึกในเครื่องแล้ว (หากไม่เข้า Sheet ให้กด New Deployment -> สิทธิ์ Anyone ใน Apps Script)`);
+            if (res && res.status === 'duplicate') {
+                playBeep(300, 0.3);
+                showToast(res.message || `เลข BIB ${bib} ซ้ำในระบบ กรุณาเปลี่ยนเลข BIB ใหม่`);
+                await fetchLeaderboardFromGAS();
+                return;
             }
+
+            playBeep(880, 0.16);
+            announceThai(`ลงทะเบียนสำเร็จครับ คุณ${firstName} ${lastName} หมายเลขบิบ ${bib} ประเภท${gender} เชิญรอปล่อยตัวพร้อมกันเวลา 7 นาฬิกา 00 นาทีครับ`);
+
+            myProfile = { bib, firstName, lastName, gender, durationSec: null, rank: null };
+            localStorage.setItem('kkr26_my_profile', JSON.stringify(myProfile));
+
+            leaderboardData.push({ bib, firstName, lastName, gender, durationSec: "" });
+            localStorage.setItem('kkr26_cached_leaderboard', JSON.stringify(leaderboardData));
+
+            updateMyRunnerUI();
+            renderLeaderboard();
+            showToast(`ลงทะเบียนสำเร็จ! ข้อมูลของคุณ ${firstName} (${bib}) บันทึกลง Sheet เรียบร้อย`);
+            fetchLeaderboardFromGAS();
         }
 
         async function handleFinish(bib) {
@@ -932,13 +1043,20 @@
                 return;
             }
 
-            playCheerSound();
             showToast(`กำลังบันทึกเวลาเข้าเส้นชัยสำหรับ BIB ${bib}...`);
 
             const gasResponse = await postToGAS({
                 action: 'finish',
                 bib: bib
             });
+
+            if (gasResponse && gasResponse.status === 'not_found') {
+                playBeep(300, 0.3);
+                showToast(gasResponse.message || `ไม่พบเลข BIB ${bib} ในระบบ กรุณาลงทะเบียนก่อนครับ`);
+                return;
+            }
+
+            playCheerSound();
 
             let runner = leaderboardData.find(r => String(r.bib).toUpperCase() === bib);
             let firstName = (gasResponse && gasResponse.firstName) || (runner && runner.firstName) || (myProfile && myProfile.bib === bib ? myProfile.firstName : "นักวิ่ง");
@@ -980,7 +1098,7 @@
         }
 
         // =========================================================================
-        // 6. UI RENDERING & MODALS
+        // 8. UI RENDERING & MODALS
         // =========================================================================
         function updateMyRunnerUI() {
             if (!myProfile) return;
@@ -997,9 +1115,7 @@
                 localStorage.setItem('kkr26_my_profile', JSON.stringify(myProfile));
             }
 
-            document.getElementById('regBib').value = myProfile.bib;
             document.getElementById('modalFinishBib').value = myProfile.bib;
-
             document.getElementById('myRunnerAvatar').textContent = myProfile.firstName.charAt(0);
             document.getElementById('myRunnerBibDisplay').textContent = `BIB: ${myProfile.bib} (${myProfile.gender})`;
             document.getElementById('myRunnerFullName').textContent = `${myProfile.firstName} ${myProfile.lastName}`;
@@ -1007,7 +1123,7 @@
             const badge = document.getElementById('myRunnerStatusBadge');
             const subInfo = document.getElementById('myRunnerSubInfo');
             const certBtn = document.getElementById('btnOpenCertQuick');
-            const qrNotice = document.getElementById('qrFinishRequiredBadge');
+            const camBtn = document.getElementById('btnBannerOpenCamera');
 
             if (myProfile.durationSec && Number(myProfile.durationSec) > 0) {
                 const rank = myProfile.rank || computeGenderRank(myProfile.bib, myProfile.gender);
@@ -1015,13 +1131,13 @@
                 badge.textContent = `เข้าเส้นชัยแล้ว • อันดับ #${rank} ${myProfile.gender}`;
                 subInfo.textContent = `สถิติ 5 กม.: ${formatHMS(myProfile.durationSec)} | Pace: ${calcPace(myProfile.durationSec).text}/กม.`;
                 certBtn.classList.remove('hidden');
-                qrNotice.classList.add('hidden');
+                camBtn.classList.add('hidden');
             } else {
                 badge.className = "px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold";
                 badge.textContent = "ลงทะเบียนแล้ว • รอปล่อยตัว / กำลังวิ่ง";
-                subInfo.textContent = "ข้อมูลเข้าสู่ระบบแล้ว เมื่อวิ่งครบ 5 กม. ให้สแกนป้าย QR ที่เส้นชัย";
+                subInfo.textContent = "ข้อมูลเข้าสู่ระบบแล้ว เมื่อวิ่งครบ 5 กม. ให้กดปุ่ม 'เปิดกล้องสแกน QR เส้นชัย'";
                 certBtn.classList.add('hidden');
-                qrNotice.classList.remove('hidden');
+                camBtn.classList.remove('hidden');
             }
         }
 
@@ -1108,6 +1224,16 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        function openQrRegisterModal() {
+            const modal = document.getElementById('qrAutoModal');
+            document.getElementById('qrModalRegisterContent').classList.remove('hidden');
+            document.getElementById('qrModalFinishContent').classList.add('hidden');
+            const newBib = generateUniqueBib();
+            document.getElementById('modalRegBib').value = newBib;
+            validateBibInput(newBib, 'modalRegBibStatusMsg', 'btnModalSubmitReg');
+            modal.classList.remove('hidden');
+        }
+
         function openQrFinishModal() {
             const modal = document.getElementById('qrAutoModal');
             document.getElementById('qrModalFinishContent').classList.remove('hidden');
@@ -1118,55 +1244,66 @@
             modal.classList.remove('hidden');
         }
 
-        // =========================================================================
-        // 7. URL QUERY PARAMETER HANDLER
-        // =========================================================================
         function checkUrlActionParams() {
             const params = new URLSearchParams(window.location.search);
             const action = (params.get('action') || '').toLowerCase();
 
             if (action === 'register') {
-                const modal = document.getElementById('qrAutoModal');
-                document.getElementById('qrModalRegisterContent').classList.remove('hidden');
-                document.getElementById('qrModalFinishContent').classList.add('hidden');
-                document.getElementById('modalRegBib').value = generateBib();
-                modal.classList.remove('hidden');
+                openQrRegisterModal();
             } else if (action === 'finish') {
                 openQrFinishModal();
             }
         }
 
         // =========================================================================
-        // 8. INITIALIZATION & EVENT LISTENERS
+        // 9. INITIALIZATION & EVENT LISTENERS
         // =========================================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('regBib').value = generateBib();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchLeaderboardFromGAS();
+            const initialBib = generateUniqueBib();
+            document.getElementById('regBib').value = initialBib;
+            validateBibInput(initialBib, 'regBibStatusMsg', 'btnSubmitRegister');
+
             updateMyRunnerUI();
-            fetchLeaderboardFromGAS();
             tickClock();
             setInterval(tickClock, 500);
             checkUrlActionParams();
             if (window.lucide) lucide.createIcons();
 
-            // ปลดล็อกเสียงทันทีที่ผู้ใช้แตะหน้าจอครั้งแรก
             document.body.addEventListener('touchstart', unlockMobileAudio, { once: true });
             document.body.addEventListener('click', unlockMobileAudio, { once: true });
 
+            // Real-time BIB duplicate check on typing
+            document.getElementById('regBib').addEventListener('input', (e) => {
+                validateBibInput(e.target.value, 'regBibStatusMsg', 'btnSubmitRegister');
+            });
+            document.getElementById('modalRegBib').addEventListener('input', (e) => {
+                validateBibInput(e.target.value, 'modalRegBibStatusMsg', 'btnModalSubmitReg');
+            });
+
+            // Navigation & Camera Buttons
             document.getElementById('navBtnRegister').addEventListener('click', () => {
                 document.getElementById('registerSection').scrollIntoView({ behavior: 'smooth' });
                 document.getElementById('regFirstName').focus();
             });
-            document.getElementById('navBtnStartInfo').addEventListener('click', () => {
-                document.getElementById('startInfoModal').classList.remove('hidden');
+            document.getElementById('navBtnOpenCamera').addEventListener('click', openCameraScanner);
+            document.getElementById('btnBannerOpenCamera').addEventListener('click', openCameraScanner);
+            document.getElementById('btnSectionOpenCamera').addEventListener('click', openCameraScanner);
+
+            document.getElementById('btnCloseCameraModal').addEventListener('click', async () => {
+                await stopCameraScanner();
+                document.getElementById('cameraScannerModal').classList.add('hidden');
             });
-            document.getElementById('btnCloseStartInfoModal').addEventListener('click', () => {
-                document.getElementById('startInfoModal').classList.add('hidden');
+            document.getElementById('btnCancelCamera').addEventListener('click', async () => {
+                await stopCameraScanner();
+                document.getElementById('cameraScannerModal').classList.add('hidden');
             });
+
             document.getElementById('navBtnPersonalCert').addEventListener('click', () => {
                 if (myProfile && Number(myProfile.durationSec) > 0) {
                     openCertificateModal(myProfile);
                 } else {
-                    showToast("เมื่อวิ่งถึงเส้นชัย ให้สแกนป้าย QR Code ที่เส้นชัยเพื่อบันทึกเวลาและรับใบประกาศครับ");
+                    showToast("เมื่อวิ่งถึงเส้นชัย ให้กด 'เปิดกล้องสแกนเส้นชัย' เพื่อส่องป้าย QR Code จุด Finish ครับ");
                 }
             });
 
@@ -1175,11 +1312,15 @@
             });
 
             document.getElementById('btnRandomBib').addEventListener('click', () => {
-                document.getElementById('regBib').value = generateBib();
+                const newBib = generateUniqueBib();
+                document.getElementById('regBib').value = newBib;
+                validateBibInput(newBib, 'regBibStatusMsg', 'btnSubmitRegister');
                 playBeep(660, 0.08);
             });
             document.getElementById('btnModalRandomBib').addEventListener('click', () => {
-                document.getElementById('modalRegBib').value = generateBib();
+                const newBib = generateUniqueBib();
+                document.getElementById('modalRegBib').value = newBib;
+                validateBibInput(newBib, 'modalRegBibStatusMsg', 'btnModalSubmitReg');
                 playBeep(660, 0.08);
             });
 
