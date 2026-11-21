@@ -730,7 +730,7 @@
         }
 
         function calcPace(durationSec) {
-            if (!durationSec || durationSec <= 0) return { min: 0, sec: 0, text: "--'--"" };
+            if (!durationSec || durationSec <= 0) return { min: 0, sec: 0, text: "--'--\"" };
             const totalMin = durationSec / 60;
             const paceDec = totalMin / RACE_DISTANCE_KM;
             let pMin = Math.floor(paceDec);
