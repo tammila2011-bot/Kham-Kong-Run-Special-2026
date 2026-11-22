@@ -169,7 +169,7 @@
                             ยินดีต้อนรับนักวิ่ง Kham Kong Run #Special 2026
                         </h2>
                         <p id="myRunnerSubInfo" class="text-xs sm:text-sm text-slate-300 mt-0.5">
-                            กรุณากดปุ่ม "ลงทะเบียน (BIB)" หรือกด "เช็กสถิติ & ใบประกาศ" เพื่อค้นหาข้อมูลย้อนหลัง
+                            กรุณากรอกเลข BIB ที่ได้รับจากทีมงานเพื่อลงทะเบียน หรือกด "เช็กสถิติ & ใบประกาศ"
                         </p>
                     </div>
                 </div>
@@ -196,7 +196,7 @@
         <!-- Two-Column Checkpoints -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            <!-- Checkpoint 1: Registration Form with Duplicate BIB Checker -->
+            <!-- Checkpoint 1: Registration Form (Staff-issued BIB input only, no random button) -->
             <div id="registerSection" class="glass-panel rounded-3xl p-6 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-700/70 pb-4 mb-5">
                     <div class="flex items-center gap-3">
@@ -205,23 +205,18 @@
                         </div>
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">จุดที่ 1 • โฮงเฮียนแม่น้ำของ</span>
-                            <h3 class="text-lg font-bold text-white">ลงทะเบียนนักวิ่ง (ป้องกันเลข BIB ซ้ำ)</h3>
+                            <h3 class="text-lg font-bold text-white">ลงทะเบียนนักวิ่ง (ใช้เลข BIB จากทีมงาน)</h3>
                         </div>
                     </div>
                 </div>
 
                 <form id="regForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs text-slate-300 mb-1" for="regBib">เลข BIB ประจำตัวนักวิ่ง *</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="regBib" required placeholder="เช่น KK-101"
-                                class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm font-mono-num font-bold text-amber-300 uppercase focus:outline-none focus:border-amber-400 transition">
-                            <button type="button" id="btnRandomBib" class="px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs text-slate-200 font-medium flex items-center gap-1 shrink-0 transition">
-                                <i data-lucide="shuffle" class="w-4 h-4 text-amber-400"></i> สุ่ม BIB ว่าง
-                            </button>
-                        </div>
-                        <p id="regBibStatusMsg" class="text-[11px] mt-1.5 flex items-center gap-1 text-emerald-400">
-                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> <span>เลข BIB นี้พร้อมใช้งาน</span>
+                        <label class="block text-xs text-slate-300 mb-1" for="regBib">เลข BIB ประจำตัวนักวิ่ง (ที่ได้รับจากทีมงาน) *</label>
+                        <input type="text" id="regBib" required placeholder="กรอกเลข BIB ของคุณ เช่น KK-101"
+                            class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm font-mono-num font-bold text-amber-300 uppercase focus:outline-none focus:border-amber-400 transition">
+                        <p id="regBibStatusMsg" class="text-[11px] mt-1.5 flex items-center gap-1 text-slate-400">
+                            <span>กรุณากรอกเลข BIB ที่ได้รับจากทีมงานก่อนเริ่มงาน</span>
                         </p>
                     </div>
 
@@ -420,7 +415,7 @@
             <div class="space-y-2">
                 <label class="block text-xs text-slate-300">พิมพ์เลข BIB หรือ ชื่อจริงของนักวิ่ง</label>
                 <div class="flex gap-2">
-                    <input type="text" id="lookupQueryInput" placeholder="เช่น KK-705 หรือ รานี"
+                    <input type="text" id="lookupQueryInput" placeholder="เช่น KK-451 หรือ สมควร"
                         class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400">
                     <button id="btnDoLookupSearch" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0">
                         ค้นหา
@@ -463,7 +458,7 @@
         <div class="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
             <button id="btnCloseQrAutoModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
             
-            <!-- Register View inside Modal -->
+            <!-- Register View inside Modal (Staff-issued BIB input only) -->
             <div id="qrModalRegisterContent" class="hidden space-y-4">
                 <div class="text-center">
                     <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-2">
@@ -474,12 +469,9 @@
                 </div>
                 <form id="modalRegForm" class="space-y-3">
                     <div>
-                        <label class="block text-xs text-slate-300 mb-1">เลข BIB *</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="modalRegBib" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num font-bold text-amber-300 uppercase">
-                            <button type="button" id="btnModalRandomBib" class="px-3 rounded-xl bg-slate-800 text-xs text-slate-200 border border-slate-700">สุ่ม BIB ว่าง</button>
-                        </div>
-                        <p id="modalRegBibStatusMsg" class="text-[11px] mt-1 text-emerald-400">เลข BIB นี้พร้อมใช้งาน</p>
+                        <label class="block text-xs text-slate-300 mb-1">เลข BIB (ที่ได้รับจากทีมงาน) *</label>
+                        <input type="text" id="modalRegBib" required placeholder="กรอกเลข BIB เช่น KK-101" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num font-bold text-amber-300 uppercase">
+                        <p id="modalRegBibStatusMsg" class="text-[11px] mt-1 text-slate-400">กรุณากรอกเลข BIB ที่ได้รับจากทีมงาน</p>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
@@ -531,10 +523,10 @@
         </div>
     </div>
 
-    <!-- 5. Modal: Marathon E-Certificate (Mobile Save Image & Share + Fixed Stats Layout) -->
+    <!-- 5. Modal: Marathon E-Certificate (With "กลับหน้าหลัก" Button) -->
     <div id="certificateModal" class="fixed inset-0 bg-slate-950/92 backdrop-blur-md z-50 hidden overflow-y-auto p-3 sm:p-4 flex items-center justify-center">
         <div class="max-w-xl w-full my-auto">
-            <!-- Top Action Buttons: Save Image / Share / Replay Voice / Close -->
+            <!-- Top Action Buttons: Save Image / Share / Replay Voice / Back to Home -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div class="flex flex-wrap items-center gap-2">
                     <button id="btnSaveCertImage" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-lg">
@@ -547,8 +539,8 @@
                         <i data-lucide="volume-2" class="w-4 h-4"></i> ฟังเสียง
                     </button>
                 </div>
-                <button id="btnCloseCertModal" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">
-                    ปิดหน้าต่าง
+                <button id="btnCloseCertModal" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition">
+                    <i data-lucide="home" class="w-4 h-4"></i> กลับหน้าหลัก
                 </button>
             </div>
 
@@ -577,23 +569,23 @@
                     <div class="my-5 space-y-2">
                         <p class="text-xs text-slate-500">ใบประกาศเกียรติบัตรฉบับนี้ขอมอบให้ไว้เพื่อแสดงว่า</p>
                         <h3 id="certRunnerName" class="text-2xl sm:text-4xl font-extrabold text-blue-950 underline decoration-amber-400 decoration-4 underline-offset-8 py-1">
-                            รานี ของเรา
+                            สมควร มิตรมาก
                         </h3>
                         <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-semibold mt-2">
-                            <span>BIB: <strong id="certRunnerBib" class="font-mono-num text-amber-300">KK-705</strong></span>
+                            <span>BIB: <strong id="certRunnerBib" class="font-mono-num text-amber-300">KK-451</strong></span>
                             <span>•</span>
-                            <span>ประเภท: <strong id="certRunnerGender" class="text-sky-300">หญิง</strong></span>
+                            <span>ประเภท: <strong id="certRunnerGender" class="text-sky-300">ชาย</strong></span>
                         </div>
                         <p class="text-xs text-slate-600 pt-1">
                             ได้วิ่งเข้าเส้นชัยระยะทาง 5.00 กิโลเมตร (Mass Start 07:00 น.) สำเร็จสมบูรณ์
                         </p>
                     </div>
 
-                    <!-- Official Stats Box (Responsive Layout: No Overlap on Mobile!) -->
+                    <!-- Official Stats Box -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-4 rounded-2xl shadow-inner my-5">
                         <div class="pb-2.5 sm:pb-0 border-b sm:border-b-0 sm:border-r border-slate-700/80 flex sm:flex-col items-center justify-between sm:justify-center px-2">
                             <p class="text-[11px] text-amber-300/90 uppercase font-medium">สถิติเวลา (Gun Time)</p>
-                            <p id="certDuration" class="text-xl sm:text-2xl font-mono-num font-extrabold text-white sm:mt-1 tracking-tight">00:26:15</p>
+                            <p id="certDuration" class="text-xl sm:text-2xl font-mono-num font-extrabold text-white sm:mt-1 tracking-tight">00:26:24</p>
                         </div>
                         <div class="pb-2.5 sm:pb-0 border-b sm:border-b-0 sm:border-r border-slate-700/80 flex sm:flex-col items-center justify-between sm:justify-center px-2">
                             <div class="text-left sm:text-center">
@@ -601,12 +593,12 @@
                                 <p class="text-[10px] text-slate-400 sm:hidden">นาที / กิโลเมตร</p>
                             </div>
                             <div class="text-right sm:text-center">
-                                <p id="certPace" class="text-xl sm:text-2xl font-mono-num font-extrabold text-emerald-400 sm:mt-1 tracking-tight">5'15"</p>
+                                <p id="certPace" class="text-xl sm:text-2xl font-mono-num font-extrabold text-emerald-400 sm:mt-1 tracking-tight">5'17"</p>
                                 <p class="hidden sm:block text-[9px] text-slate-400">นาที / กม.</p>
                             </div>
                         </div>
                         <div class="flex sm:flex-col items-center justify-between sm:justify-center px-2">
-                            <p class="text-[11px] text-amber-300/90 uppercase font-medium">อันดับประเภท<span id="certGenderShort">หญิง</span></p>
+                            <p class="text-[11px] text-amber-300/90 uppercase font-medium">อันดับประเภท<span id="certGenderShort">ชาย</span></p>
                             <p id="certRank" class="text-xl sm:text-2xl font-mono-num font-extrabold text-amber-400 sm:mt-1">อันดับ 1</p>
                         </div>
                     </div>
@@ -630,6 +622,13 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Bottom Back to Home Button (Convenient after scrolling down certificate) -->
+            <div class="mt-3">
+                <button id="btnBottomBackHome" class="w-full py-3 rounded-2xl bg-slate-900/95 hover:bg-slate-800 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition">
+                    <i data-lucide="home" class="w-4 h-4"></i> กลับหน้าหลัก
+                </button>
             </div>
         </div>
     </div>
@@ -886,22 +885,12 @@
         }
 
         // =========================================================================
-        // 5. DUPLICATE BIB CHECKER & UNIQUE BIB GENERATOR
+        // 5. DUPLICATE BIB CHECKER (STAFF-ISSUED BIB ONLY)
         // =========================================================================
         function isBibTaken(bib) {
             const clean = String(bib || '').trim().toUpperCase();
             if (!clean) return false;
             return leaderboardData.some(r => String(r.bib || '').trim().toUpperCase() === clean);
-        }
-
-        function generateUniqueBib() {
-            let candidate = "";
-            let attempts = 0;
-            do {
-                candidate = `KK-${Math.floor(100 + Math.random() * 899)}`;
-                attempts++;
-            } while (isBibTaken(candidate) && attempts < 100);
-            return candidate;
         }
 
         function validateBibInput(bibValue, statusElId, submitBtnId) {
@@ -912,15 +901,16 @@
             const clean = String(bibValue || '').trim().toUpperCase();
             if (!clean) {
                 statusEl.className = "text-[11px] mt-1.5 text-slate-400";
-                statusEl.textContent = "กรุณากรอกเลข BIB หรือกดสุ่ม BIB ว่าง";
+                statusEl.textContent = "กรุณากรอกเลข BIB ที่ได้รับจากทีมงานก่อนเริ่มงาน";
                 submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 return false;
             }
 
             const existing = leaderboardData.find(r => String(r.bib || '').trim().toUpperCase() === clean);
             if (existing) {
                 statusEl.className = "text-[11px] mt-1.5 text-rose-400 font-semibold";
-                statusEl.textContent = `⚠️ เลข BIB ${clean} ซ้ำกับคุณ "${existing.firstName} ${existing.lastName}" กรุณาเปลี่ยนเลขใหม่`;
+                statusEl.textContent = `⚠️ เลข BIB ${clean} ซ้ำกับคุณ "${existing.firstName} ${existing.lastName}" กรุณาตรวจสอบเลข BIB ของคุณอีกครั้ง`;
                 submitBtn.disabled = true;
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 return false;
@@ -978,7 +968,6 @@
                             files: [file]
                         });
                     } else {
-                        // Fallback to direct download if browser doesn't support file sharing
                         const link = document.createElement('a');
                         link.download = `KhamKongRun2026_${bib}.png`;
                         link.href = URL.createObjectURL(blob);
@@ -1142,7 +1131,7 @@
 
             if (isBibTaken(bib)) {
                 playBeep(300, 0.25);
-                showToast(`ไม่สามารถลงทะเบียนได้! เลข BIB ${bib} มีผู้ใช้งานแล้ว กรุณากด "สุ่ม BIB ว่าง"`);
+                showToast(`ไม่สามารถลงทะเบียนได้! เลข BIB ${bib} มีผู้ใช้งานแล้ว กรุณาตรวจสอบเลข BIB ของคุณ`);
                 return;
             }
 
@@ -1159,7 +1148,7 @@
 
             if (res && res.status === 'duplicate') {
                 playBeep(300, 0.3);
-                showToast(res.message || `เลข BIB ${bib} ซ้ำในระบบ กรุณาเปลี่ยนเลข BIB ใหม่`);
+                showToast(res.message || `เลข BIB ${bib} ซ้ำในระบบ กรุณาตรวจสอบเลข BIB ของคุณ`);
                 await fetchLeaderboardFromGAS();
                 return;
             }
@@ -1380,13 +1369,17 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        function closeCertificateAndGoHome() {
+            document.getElementById('certificateModal').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function openQrRegisterModal() {
             const modal = document.getElementById('qrAutoModal');
             document.getElementById('qrModalRegisterContent').classList.remove('hidden');
             document.getElementById('qrModalFinishContent').classList.add('hidden');
-            const newBib = generateUniqueBib();
-            document.getElementById('modalRegBib').value = newBib;
-            validateBibInput(newBib, 'modalRegBibStatusMsg', 'btnModalSubmitReg');
+            document.getElementById('modalRegBib').value = "";
+            validateBibInput("", 'modalRegBibStatusMsg', 'btnModalSubmitReg');
             modal.classList.remove('hidden');
         }
 
@@ -1416,9 +1409,7 @@
         // =========================================================================
         document.addEventListener('DOMContentLoaded', async () => {
             await fetchLeaderboardFromGAS();
-            const initialBib = generateUniqueBib();
-            document.getElementById('regBib').value = initialBib;
-            validateBibInput(initialBib, 'regBibStatusMsg', 'btnSubmitRegister');
+            validateBibInput(document.getElementById('regBib').value, 'regBibStatusMsg', 'btnSubmitRegister');
 
             updateMyRunnerUI();
             tickClock();
@@ -1440,7 +1431,7 @@
             // Navigation & Lookup Buttons
             document.getElementById('navBtnRegister').addEventListener('click', () => {
                 document.getElementById('registerSection').scrollIntoView({ behavior: 'smooth' });
-                document.getElementById('regFirstName').focus();
+                document.getElementById('regBib').focus();
             });
             document.getElementById('navBtnOpenCamera').addEventListener('click', openCameraScanner);
             document.getElementById('btnBannerOpenCamera').addEventListener('click', openCameraScanner);
@@ -1454,9 +1445,11 @@
             document.getElementById('btnDoLookupSearch').addEventListener('click', performLookupSearch);
             document.getElementById('lookupQueryInput').addEventListener('input', performLookupSearch);
 
-            // Certificate Save Image & Share
+            // Certificate Save Image, Share & Back to Home
             document.getElementById('btnSaveCertImage').addEventListener('click', saveCertificateAsImage);
             document.getElementById('btnShareCertImage').addEventListener('click', shareCertificateImage);
+            document.getElementById('btnCloseCertModal').addEventListener('click', closeCertificateAndGoHome);
+            document.getElementById('btnBottomBackHome').addEventListener('click', closeCertificateAndGoHome);
 
             document.getElementById('btnCloseCameraModal').addEventListener('click', async () => {
                 await stopCameraScanner();
@@ -1469,19 +1462,6 @@
 
             document.getElementById('btnOpenCertQuick').addEventListener('click', () => {
                 if (myProfile && Number(myProfile.durationSec) > 0) openCertificateModal(myProfile);
-            });
-
-            document.getElementById('btnRandomBib').addEventListener('click', () => {
-                const newBib = generateUniqueBib();
-                document.getElementById('regBib').value = newBib;
-                validateBibInput(newBib, 'regBibStatusMsg', 'btnSubmitRegister');
-                playBeep(660, 0.08);
-            });
-            document.getElementById('btnModalRandomBib').addEventListener('click', () => {
-                const newBib = generateUniqueBib();
-                document.getElementById('modalRegBib').value = newBib;
-                validateBibInput(newBib, 'modalRegBibStatusMsg', 'btnModalSubmitReg');
-                playBeep(660, 0.08);
             });
 
             document.getElementById('regForm').addEventListener('submit', async (e) => {
@@ -1557,10 +1537,6 @@
 
             document.getElementById('btnCertReplayVoice').addEventListener('click', () => {
                 if (lastAnnouncementText) announceThai(lastAnnouncementText);
-            });
-
-            document.getElementById('btnCloseCertModal').addEventListener('click', () => {
-                document.getElementById('certificateModal').classList.add('hidden');
             });
 
             // Staff Simulation Drawer Controls
