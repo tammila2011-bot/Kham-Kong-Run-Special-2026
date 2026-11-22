@@ -1218,7 +1218,10 @@
             }
             localStorage.setItem('kkr26_cached_leaderboard', JSON.stringify(leaderboardData));
 
-            const rank = (gasResponse && gasResponse.rank) ? gasResponse.rank : computeGenderRank(bib, gender);
+            // หากอยู่ในโหมดจำลองเวลา ให้คำนวณอันดับจากเวลาจำลองบนหน้าจอเพื่อให้ตรงกับใบประกาศ
+    const rank = (!simMode && gasResponse && gasResponse.rank) 
+    ? gasResponse.rank 
+    : computeGenderRank(bib, gender);
 
             myProfile = { bib, firstName, lastName, gender, durationSec: finalDurationSec, rank };
             localStorage.setItem('kkr26_my_profile', JSON.stringify(myProfile));
