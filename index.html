@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- HTML5 QR Code Camera Scanner -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- HTML2Canvas for Saving/Sharing E-Certificate as Image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts: Kanit & JetBrains Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -42,26 +44,6 @@
         #qrCameraReader video {
             border-radius: 1rem;
             object-fit: cover;
-        }
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #certificateModal, #certificateModal * {
-                visibility: visible;
-            }
-            #certificateModal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: auto;
-                background: white !important;
-                padding: 0 !important;
-            }
-            .no-print {
-                display: none !important;
-            }
         }
     </style>
 </head>
@@ -133,7 +115,7 @@
                         <p id="raceSubStatus" class="text-[11px] text-slate-400 mt-1">วันที่ 7 ธันวาคม 2569</p>
                     </div>
 
-                    <!-- Elapsed Race Time (From 2026-12-07 07:00:00) -->
+                    <!-- Elapsed Race Time -->
                     <div class="pl-0 md:pl-4">
                         <p class="text-[11px] uppercase tracking-wider text-slate-400 flex items-center justify-center gap-1">
                             <i data-lucide="timer" class="w-3.5 h-3.5 text-orange-400"></i> เวลากลางการแข่งขัน (Gun Time)
@@ -151,17 +133,17 @@
     <!-- Main Action Navigation Bar -->
     <nav class="max-w-5xl mx-auto px-4 -mt-5 relative z-20">
         <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
-            <button id="navBtnRegister" class="bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold py-3 px-3 rounded-2xl shadow-lg shadow-orange-500/25 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
+            <button id="navBtnRegister" class="bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold py-3 px-2.5 rounded-2xl shadow-lg shadow-orange-500/25 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm transition">
                 <i data-lucide="user-plus" class="w-5 h-5 shrink-0"></i>
                 <span>ลงทะเบียน (BIB)</span>
             </button>
-            <button id="navBtnOpenCamera" class="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold py-3 px-3 rounded-2xl shadow-lg shadow-emerald-500/25 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
+            <button id="navBtnOpenCamera" class="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold py-3 px-2.5 rounded-2xl shadow-lg shadow-emerald-500/25 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm transition">
                 <i data-lucide="camera" class="w-5 h-5 shrink-0"></i>
-                <span>เปิดกล้องสแกนเส้นชัย</span>
+                <span>สแกนจุด Finish</span>
             </button>
-            <button id="navBtnPersonalCert" class="bg-slate-900/95 hover:bg-slate-800 border border-amber-400/40 text-amber-300 font-bold py-3 px-3 rounded-2xl shadow-lg flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm transition">
-                <i data-lucide="award" class="w-5 h-5 text-amber-400 shrink-0"></i>
-                <span>สถิติ & ใบประกาศ</span>
+            <button id="navBtnLookupStats" class="bg-slate-900/95 hover:bg-slate-800 border border-amber-400/50 text-amber-300 font-bold py-3 px-2.5 rounded-2xl shadow-lg flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm transition">
+                <i data-lucide="search" class="w-5 h-5 text-amber-400 shrink-0"></i>
+                <span>เช็กสถิติ & ใบประกาศ</span>
             </button>
         </div>
     </nav>
@@ -187,19 +169,19 @@
                             ยินดีต้อนรับนักวิ่ง Kham Kong Run #Special 2026
                         </h2>
                         <p id="myRunnerSubInfo" class="text-xs sm:text-sm text-slate-300 mt-0.5">
-                            กรุณากดปุ่ม "ลงทะเบียน (BIB)" หรือสแกน QR จุดลงทะเบียน เพื่อบันทึกข้อมูลเข้า Google Sheet
+                            กรุณากดปุ่ม "ลงทะเบียน (BIB)" หรือกด "เช็กสถิติ & ใบประกาศ" เพื่อค้นหาข้อมูลย้อนหลัง
                         </p>
                     </div>
                 </div>
 
-                <!-- Live Personal Timer & Camera Scan Action -->
+                <!-- Live Personal Timer & Actions -->
                 <div class="w-full md:w-auto flex flex-col sm:flex-row md:flex-col items-center md:items-end gap-2 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
                     <div class="text-center md:text-right">
                         <span class="text-[11px] text-slate-400 block">เวลาวิ่งของคุณ (ระยะ 5.00 กม.)</span>
                         <span id="personalLiveTimer" class="text-2xl sm:text-3xl font-mono-num font-extrabold text-emerald-400">00:00:00</span>
                         <span id="personalLivePace" class="text-xs font-mono-num text-amber-300 block">Pace: --'--"/กม.</span>
                     </div>
-                    <div class="flex gap-2 mt-1">
+                    <div class="flex flex-wrap justify-center gap-2 mt-1">
                         <button id="btnOpenCertQuick" class="hidden px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow transition">
                             <i data-lucide="award" class="w-4 h-4"></i> เปิดใบประกาศเกียรติบัตร
                         </button>
@@ -238,7 +220,6 @@
                                 <i data-lucide="shuffle" class="w-4 h-4 text-amber-400"></i> สุ่ม BIB ว่าง
                             </button>
                         </div>
-                        <!-- Live BIB Availability Status -->
                         <p id="regBibStatusMsg" class="text-[11px] mt-1.5 flex items-center gap-1 text-emerald-400">
                             <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> <span>เลข BIB นี้พร้อมใช้งาน</span>
                         </p>
@@ -282,44 +263,58 @@
                 </form>
             </div>
 
-            <!-- Checkpoint 2: In-App QR Camera Scanner for Finish Line -->
+            <!-- Checkpoint 2: Finish Line Scanner & Lookup Stats -->
             <div id="finishSection" class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col justify-between border-emerald-500/30">
-                <div>
-                    <div class="flex items-center justify-between border-b border-slate-700/70 pb-4 mb-5">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-700/70 pb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400">
                                 <i data-lucide="scan-line" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">จุดที่ 2 • เส้นชัยโฮงเฮียนแม่น้ำของ</span>
-                                <h3 class="text-lg font-bold text-white">สแกน QR Code จุด Finish (5.00 กม.)</h3>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">จุดที่ 2 • เส้นชัย & ค้นหาสถิติย้อนหลัง</span>
+                                <h3 class="text-lg font-bold text-white">สแกน Finish / เช็กสถิติย้อนหลัง</h3>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Scan Finish Card -->
                     <div class="bg-slate-950/75 border border-emerald-500/30 rounded-2xl p-4 space-y-3">
                         <p class="text-xs text-slate-300 leading-relaxed">
-                            เมื่อวิ่งครบรอบวงกลม 5 กม. กลับมาถึง <strong>โฮงเฮียนแม่น้ำของ</strong> ให้กดปุ่มเปิดกล้องด้านล่างเพื่อส่องป้าย <strong>QR Code จุดเส้นชัย</strong> ระบบจะบันทึกสถิติและออกเกียรติบัตรให้ทันทีครับ
+                            เมื่อวิ่งครบรอบวงกลม 5 กม. กลับมาถึง <strong>โฮงเฮียนแม่น้ำของ</strong> กดปุ่มเปิดกล้องเพื่อส่องป้าย <strong>QR Code จุดเส้นชัย</strong> เพื่อรับใบประกาศทันที
                         </p>
-
-                        <button id="btnSectionOpenCamera" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition">
+                        <button id="btnSectionOpenCamera" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition">
                             <i data-lucide="camera" class="w-5 h-5"></i>
                             <span>เปิดกล้องสแกนป้าย QR จุดเส้นชัย</span>
+                        </button>
+                    </div>
+
+                    <!-- Check Past Stats Card -->
+                    <div class="bg-slate-950/75 border border-amber-500/30 rounded-2xl p-4 space-y-2.5">
+                        <p class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                            <i data-lucide="search" class="w-4 h-4"></i> กลับมาดูสถิติ & ดาวน์โหลดใบประกาศย้อนหลัง:
+                        </p>
+                        <p class="text-[11px] text-slate-400">
+                            หากปิดหน้าเว็บไปแล้ว สามารถกรอกเลข BIB หรือชื่อของคุณเพื่อเรียกดูสถิติและบันทึกภาพใบประกาศใหม่ได้ตลอดเวลา
+                        </p>
+                        <button id="btnSectionOpenLookup" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition">
+                            <i data-lucide="award" class="w-4 h-4"></i>
+                            <span>ค้นหาสถิติของฉัน (กรอก BIB / ชื่อ)</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Voice Cheer & Announcement Controls -->
-                <div class="mt-5 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span class="text-slate-400 flex items-center gap-1">
-                        <i data-lucide="mic" class="w-3.5 h-3.5 text-amber-400"></i> ทดสอบเสียงโฆษก:
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-amber-400"></i> ทดสอบเสียง:
                     </span>
                     <div class="flex gap-2">
                         <button id="btnPlayCheer" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition flex items-center gap-1">
                             <i data-lucide="party-popper" class="w-3.5 h-3.5"></i> ทดสอบเสียงแตร & พากย์
                         </button>
                         <button id="btnReplayVoice" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition flex items-center gap-1">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ฟังเสียงซ้ำ
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ฟังซ้ำ
                         </button>
                     </div>
                 </div>
@@ -335,7 +330,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white">ตารางจัดอันดับ Leaderboard (ระยะ 5.00 กม.)</h2>
-                        <p class="text-xs text-slate-400">ซิงค์ข้อมูลจาก Google Sheet อัตโนมัติ แยกอันดับชาย / หญิง</p>
+                        <p class="text-xs text-slate-400">กดปุ่ม "เกียรติบัตร" ท้ายชื่อเพื่อเปิดดูหรือบันทึกรูปภาพได้ตลอดเวลา</p>
                     </div>
                 </div>
 
@@ -412,6 +407,33 @@
         </div>
     </main>
 
+    <!-- Modal: Check Past Stats & Certificate Lookup -->
+    <div id="lookupStatsModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i data-lucide="search" class="w-5 h-5 text-amber-400"></i> ค้นหาสถิติ & ใบประกาศย้อนหลัง
+                </h3>
+                <button id="btnCloseLookupModal" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-xs text-slate-300">พิมพ์เลข BIB หรือ ชื่อจริงของนักวิ่ง</label>
+                <div class="flex gap-2">
+                    <input type="text" id="lookupQueryInput" placeholder="เช่น KK-705 หรือ รานี"
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400">
+                    <button id="btnDoLookupSearch" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0">
+                        ค้นหา
+                    </button>
+                </div>
+            </div>
+
+            <div id="lookupResultsBox" class="max-h-64 overflow-y-auto space-y-2 pt-1">
+                <p class="text-xs text-slate-400 text-center py-4">กรอกเลข BIB หรือชื่อเพื่อค้นหาข้อมูลจาก Google Sheet</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Live Camera QR Code Scanner -->
     <div id="cameraScannerModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -426,7 +448,6 @@
                 หันกล้องไปที่ป้าย <strong>QR Code จุดลงทะเบียน</strong> หรือ <strong>จุดเส้นชัย (Finish)</strong> ณ โฮงเฮียนแม่น้ำของ
             </p>
 
-            <!-- Camera Viewport -->
             <div id="qrCameraReader" class="w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800 min-h-[260px] flex items-center justify-center"></div>
 
             <p id="cameraStatusText" class="text-xs text-center text-amber-300">กำลังเปิดกล้อง...</p>
@@ -489,7 +510,7 @@
                 </form>
             </div>
 
-            <!-- Finish View inside Modal (QR Scan Only) -->
+            <!-- Finish View inside Modal -->
             <div id="qrModalFinishContent" class="hidden space-y-4 text-center">
                 <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center mx-auto">
                     <i data-lucide="flag-triangle-right" class="w-7 h-7"></i>
@@ -510,27 +531,30 @@
         </div>
     </div>
 
-    <!-- 5. Modal: Marathon E-Certificate -->
-    <div id="certificateModal" class="fixed inset-0 bg-slate-950/92 backdrop-blur-md z-50 hidden overflow-y-auto p-4 flex items-center justify-center">
-        <div class="max-w-3xl w-full my-auto">
-            <!-- Top Action Buttons -->
-            <div class="no-print flex flex-wrap items-center justify-between gap-2 mb-3">
-                <button id="btnCertReplayVoice" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-lg">
-                    <i data-lucide="volume-2" class="w-4 h-4"></i> ฟังเสียงประกาศยินดีอีกครั้ง
-                </button>
-                <div class="flex items-center gap-2">
-                    <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-lg">
-                        <i data-lucide="printer" class="w-4 h-4"></i> พิมพ์ / บันทึกเป็น PDF
+    <!-- 5. Modal: Marathon E-Certificate (Mobile Save Image & Share + Fixed Stats Layout) -->
+    <div id="certificateModal" class="fixed inset-0 bg-slate-950/92 backdrop-blur-md z-50 hidden overflow-y-auto p-3 sm:p-4 flex items-center justify-center">
+        <div class="max-w-xl w-full my-auto">
+            <!-- Top Action Buttons: Save Image / Share / Replay Voice / Close -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="btnSaveCertImage" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-lg">
+                        <i data-lucide="download" class="w-4 h-4"></i> บันทึกรูปเข้ามือถือ
                     </button>
-                    <button id="btnCloseCertModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">
-                        ปิดหน้าต่าง
+                    <button id="btnShareCertImage" class="px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-lg">
+                        <i data-lucide="share-2" class="w-4 h-4"></i> แชร์ใบประกาศ
+                    </button>
+                    <button id="btnCertReplayVoice" class="px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-bold flex items-center gap-1">
+                        <i data-lucide="volume-2" class="w-4 h-4"></i> ฟังเสียง
                     </button>
                 </div>
+                <button id="btnCloseCertModal" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">
+                    ปิดหน้าต่าง
+                </button>
             </div>
 
-            <!-- E-Certificate Card -->
-            <div class="bg-gradient-to-br from-[#fffdf7] via-white to-[#fff7ed] text-slate-900 rounded-3xl p-5 sm:p-8 shadow-2xl border-[10px] border-double border-amber-500 relative overflow-hidden">
-                <div class="border-2 border-amber-500/40 rounded-2xl p-6 sm:p-8 relative text-center">
+            <!-- E-Certificate Capture Area -->
+            <div id="certificateCaptureArea" class="bg-gradient-to-br from-[#fffdf7] via-white to-[#fff7ed] text-slate-900 rounded-3xl p-4 sm:p-7 shadow-2xl border-[8px] border-double border-amber-500 relative overflow-hidden">
+                <div class="border-2 border-amber-500/40 rounded-2xl p-5 sm:p-7 relative text-center">
                     <!-- Official Finisher Seal -->
                     <div class="flex justify-center mb-3">
                         <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-slate-900 via-blue-950 to-amber-600 p-1 shadow-xl">
@@ -542,61 +566,66 @@
                         </div>
                     </div>
 
-                    <p class="text-xs font-bold uppercase tracking-[0.25em] text-amber-700">Official Finisher Certificate</p>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-1">
+                    <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-amber-700">Official Finisher Certificate</p>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
                         Kham Kong Run <span class="text-orange-600">#Special 2026</span>
                     </h2>
-                    <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">
+                    <p class="text-xs text-slate-600 font-medium mt-1">
                         วันจันทร์ที่ 7 ธันวาคม 2569 • ณ โฮงเฮียนแม่น้ำของ (ระยะทาง 5.00 กิโลเมตร)
                     </p>
 
-                    <div class="my-6 space-y-2">
-                        <p class="text-xs sm:text-sm text-slate-500">ใบประกาศเกียรติบัตรฉบับนี้ขอมอบให้ไว้เพื่อแสดงว่า</p>
-                        <h3 id="certRunnerName" class="text-3xl sm:text-4xl font-extrabold text-blue-950 underline decoration-amber-400 decoration-4 underline-offset-8 py-1">
-                            ก้องภพ ริมโขง
+                    <div class="my-5 space-y-2">
+                        <p class="text-xs text-slate-500">ใบประกาศเกียรติบัตรฉบับนี้ขอมอบให้ไว้เพื่อแสดงว่า</p>
+                        <h3 id="certRunnerName" class="text-2xl sm:text-4xl font-extrabold text-blue-950 underline decoration-amber-400 decoration-4 underline-offset-8 py-1">
+                            รานี ของเรา
                         </h3>
-                        <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold mt-2">
-                            <span>BIB: <strong id="certRunnerBib" class="font-mono-num text-amber-300">KK-101</strong></span>
+                        <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-semibold mt-2">
+                            <span>BIB: <strong id="certRunnerBib" class="font-mono-num text-amber-300">KK-705</strong></span>
                             <span>•</span>
-                            <span>ประเภท: <strong id="certRunnerGender" class="text-sky-300">ชาย</strong></span>
+                            <span>ประเภท: <strong id="certRunnerGender" class="text-sky-300">หญิง</strong></span>
                         </div>
-                        <p class="text-xs sm:text-sm text-slate-600 pt-2">
+                        <p class="text-xs text-slate-600 pt-1">
                             ได้วิ่งเข้าเส้นชัยระยะทาง 5.00 กิโลเมตร (Mass Start 07:00 น.) สำเร็จสมบูรณ์
                         </p>
                     </div>
 
-                    <!-- Official Stats Box -->
-                    <div class="grid grid-cols-3 gap-2 sm:gap-4 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-4 rounded-2xl shadow-inner my-6">
-                        <div class="border-r border-slate-700/80">
-                            <p class="text-[10px] sm:text-xs text-amber-300/90 uppercase">สถิติเวลา (Gun Time)</p>
-                            <p id="certDuration" class="text-lg sm:text-2xl font-mono-num font-extrabold text-white mt-0.5">00:26:15</p>
+                    <!-- Official Stats Box (Responsive Layout: No Overlap on Mobile!) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-4 rounded-2xl shadow-inner my-5">
+                        <div class="pb-2.5 sm:pb-0 border-b sm:border-b-0 sm:border-r border-slate-700/80 flex sm:flex-col items-center justify-between sm:justify-center px-2">
+                            <p class="text-[11px] text-amber-300/90 uppercase font-medium">สถิติเวลา (Gun Time)</p>
+                            <p id="certDuration" class="text-xl sm:text-2xl font-mono-num font-extrabold text-white sm:mt-1 tracking-tight">00:26:15</p>
                         </div>
-                        <div class="border-r border-slate-700/80">
-                            <p class="text-[10px] sm:text-xs text-amber-300/90 uppercase">ค่า Pace เฉลี่ย</p>
-                            <p id="certPace" class="text-lg sm:text-2xl font-mono-num font-extrabold text-emerald-400 mt-0.5">5'15"</p>
-                            <p class="text-[9px] text-slate-400">นาที / กม.</p>
+                        <div class="pb-2.5 sm:pb-0 border-b sm:border-b-0 sm:border-r border-slate-700/80 flex sm:flex-col items-center justify-between sm:justify-center px-2">
+                            <div class="text-left sm:text-center">
+                                <p class="text-[11px] text-amber-300/90 uppercase font-medium">ค่า Pace เฉลี่ย</p>
+                                <p class="text-[10px] text-slate-400 sm:hidden">นาที / กิโลเมตร</p>
+                            </div>
+                            <div class="text-right sm:text-center">
+                                <p id="certPace" class="text-xl sm:text-2xl font-mono-num font-extrabold text-emerald-400 sm:mt-1 tracking-tight">5'15"</p>
+                                <p class="hidden sm:block text-[9px] text-slate-400">นาที / กม.</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] sm:text-xs text-amber-300/90 uppercase">อันดับประเภท<span id="certGenderShort">ชาย</span></p>
-                            <p id="certRank" class="text-lg sm:text-2xl font-mono-num font-extrabold text-amber-400 mt-0.5">อันดับ 1</p>
+                        <div class="flex sm:flex-col items-center justify-between sm:justify-center px-2">
+                            <p class="text-[11px] text-amber-300/90 uppercase font-medium">อันดับประเภท<span id="certGenderShort">หญิง</span></p>
+                            <p id="certRank" class="text-xl sm:text-2xl font-mono-num font-extrabold text-amber-400 sm:mt-1">อันดับ 1</p>
                         </div>
                     </div>
 
                     <!-- Signatures & Verified Stamp -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs text-slate-500">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200 text-xs text-slate-500">
                         <div class="text-center sm:text-left">
                             <p>ปล่อยตัว: <strong>7 ธ.ค. 2569 เวลา 07:00:00 น.</strong></p>
                             <p class="text-[10px] text-slate-400 font-mono-num mt-0.5">Verified ID: <span id="certVerifyId">KKR26-071269</span></p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="w-14 h-14 rounded-full border-2 border-red-600/70 text-red-700/80 flex flex-col items-center justify-center -rotate-12 text-[8px] font-extrabold leading-tight p-1">
+                            <div class="w-12 h-12 rounded-full border-2 border-red-600/70 text-red-700/80 flex flex-col items-center justify-center -rotate-12 text-[7px] font-extrabold leading-tight p-1">
                                 <span>โฮงเฮียน</span>
                                 <span>แม่น้ำของ</span>
                                 <span>VERIFIED</span>
                             </div>
                             <div class="text-center">
-                                <p class="font-bold text-slate-800 text-sm">คณะกรรมการจัดการแข่งขัน</p>
-                                <p class="text-[11px] text-slate-500">Kham Kong Run #Special 2026</p>
+                                <p class="font-bold text-slate-800 text-xs sm:text-sm">คณะกรรมการจัดการแข่งขัน</p>
+                                <p class="text-[10px] text-slate-500">Kham Kong Run #Special 2026</p>
                             </div>
                         </div>
                     </div>
@@ -609,7 +638,7 @@
         // =========================================================================
         // 1. CONFIGURATION & GOOGLE APPS SCRIPT BACKEND
         // =========================================================================
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxLzdCPzDwl-U7SFnxMCUeyTI-XrnTDhswueZqWUxfVlO3Si0VfrXd5dsCe9M_QX-Oqzg/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBi1f5QJMgAAzH6ElD-7LroL353zAiALU0EHARHGqkN_mrgAPpHUgEO0WSBTirMwf3zg/exec";
         const OFFICIAL_START_ISO = "2026-12-07T07:00:00+07:00";
         const RACE_DISTANCE_KM = 5.0;
 
@@ -619,6 +648,7 @@
         let leaderboardData = [];
         let sharedAudioCtx = null;
         let html5QrScanner = null;
+        let currentOpenedCertRunner = null;
 
         let myProfile = JSON.parse(localStorage.getItem('kkr26_my_profile')) || null;
 
@@ -904,7 +934,138 @@
         }
 
         // =========================================================================
-        // 6. IN-APP CAMERA QR CODE SCANNER
+        // 6. SAVE & SHARE E-CERTIFICATE AS IMAGE ON MOBILE
+        // =========================================================================
+        async function captureCertificateCanvas() {
+            const target = document.getElementById('certificateCaptureArea');
+            return await html2canvas(target, {
+                scale: 2.5,
+                useCORS: true,
+                backgroundColor: '#fffdf7'
+            });
+        }
+
+        async function saveCertificateAsImage() {
+            try {
+                showToast("กำลังสร้างไฟล์รูปภาพใบประกาศความละเอียดสูง...");
+                const canvas = await captureCertificateCanvas();
+                const bib = currentOpenedCertRunner ? currentOpenedCertRunner.bib : "Finisher";
+                const link = document.createElement('a');
+                link.download = `KhamKongRun2026_${bib}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                playBeep(880, 0.12);
+                showToast("ดาวน์โหลดรูปภาพใบประกาศเข้ามือถือเรียบร้อยแล้ว!");
+            } catch (err) {
+                console.error("Save image error:", err);
+                showToast("ไม่สามารถบันทึกรูปภาพอัตโนมัติได้ กรุณาแคปหน้าจอใบประกาศนี้ครับ");
+            }
+        }
+
+        async function shareCertificateImage() {
+            try {
+                showToast("กำลังเตรียมรูปภาพสำหรับแชร์...");
+                const canvas = await captureCertificateCanvas();
+                const bib = currentOpenedCertRunner ? currentOpenedCertRunner.bib : "Finisher";
+                const name = currentOpenedCertRunner ? `${currentOpenedCertRunner.firstName} ${currentOpenedCertRunner.lastName}` : "";
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `KhamKongRun2026_${bib}.png`, { type: 'image/png' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: 'เกียรติบัตร Kham Kong Run #Special 2026',
+                            text: `ยินดีกับ ${name} (${bib}) เข้าเส้นชัยระยะทาง 5.00 กม. ณ โฮงเฮียนแม่น้ำของ!`,
+                            files: [file]
+                        });
+                    } else {
+                        // Fallback to direct download if browser doesn't support file sharing
+                        const link = document.createElement('a');
+                        link.download = `KhamKongRun2026_${bib}.png`;
+                        link.href = URL.createObjectURL(blob);
+                        link.click();
+                        showToast("บันทึกรูปลงเครื่องแล้ว สามารถกดส่งรูปใน Line/Facebook ได้เลยครับ");
+                    }
+                }, 'image/png');
+            } catch (err) {
+                console.warn("Share cancelled or unsupported:", err);
+            }
+        }
+
+        // =========================================================================
+        // 7. CHECK PAST STATS & CERTIFICATE LOOKUP
+        // =========================================================================
+        async function openLookupStatsModal() {
+            const modal = document.getElementById('lookupStatsModal');
+            modal.classList.remove('hidden');
+            await fetchLeaderboardFromGAS();
+            performLookupSearch();
+        }
+
+        function performLookupSearch() {
+            const query = (document.getElementById('lookupQueryInput').value || '').trim().toLowerCase();
+            const box = document.getElementById('lookupResultsBox');
+
+            let matches = leaderboardData;
+            if (query) {
+                matches = leaderboardData.filter(r =>
+                    String(r.bib || '').toLowerCase().includes(query) ||
+                    String(r.firstName || '').toLowerCase().includes(query) ||
+                    String(r.lastName || '').toLowerCase().includes(query)
+                );
+            }
+
+            if (matches.length === 0) {
+                box.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">ไม่พบข้อมูลนักวิ่งที่ตรงกับ "${query}"</p>`;
+                return;
+            }
+
+            box.innerHTML = matches.map(r => {
+                const dur = Number(r.durationSec);
+                const isFinished = dur > 0;
+                const rank = isFinished ? computeGenderRank(r.bib, r.gender) : null;
+                return `
+                    <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono-num text-xs font-bold text-amber-300">${r.bib}</span>
+                                <span class="text-sm font-bold text-white">${r.firstName} ${r.lastName}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-0.5">
+                                ${isFinished
+                                    ? `เวลา: <strong class="text-emerald-400">${formatHMS(dur)}</strong> • Pace: ${calcPace(dur).text} • อันดับ #${rank} ${r.gender}`
+                                    : `ประเภท${r.gender} • สถานะ: ลงทะเบียนแล้ว (ยังไม่เข้าเส้นชัย)`}
+                            </p>
+                        </div>
+                        ${isFinished
+                            ? `<button onclick="selectAndOpenCert('${r.bib}')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0">
+                                ดูใบประกาศ
+                               </button>`
+                            : `<span class="text-[10px] text-slate-500 shrink-0">รอเข้าเส้นชัย</span>`}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.selectAndOpenCert = function(bib) {
+            document.getElementById('lookupStatsModal').classList.add('hidden');
+            const r = leaderboardData.find(item => String(item.bib).toUpperCase() === String(bib).toUpperCase());
+            if (!r) return;
+            const rank = computeGenderRank(r.bib, r.gender);
+            myProfile = {
+                bib: r.bib,
+                firstName: r.firstName,
+                lastName: r.lastName,
+                gender: r.gender,
+                durationSec: Number(r.durationSec),
+                rank
+            };
+            localStorage.setItem('kkr26_my_profile', JSON.stringify(myProfile));
+            updateMyRunnerUI();
+            openCertificateModal(myProfile);
+        };
+
+        // =========================================================================
+        // 8. IN-APP CAMERA QR CODE SCANNER
         // =========================================================================
         async function openCameraScanner() {
             unlockMobileAudio();
@@ -927,9 +1088,7 @@
                         modal.classList.add('hidden');
                         handleScannedQrText(decodedText);
                     },
-                    (errorMessage) => {
-                        // ignore frame scan errors
-                    }
+                    () => {}
                 );
                 statusText.textContent = "ส่องกล้องไปที่ป้าย QR Code จุดเส้นชัย (Finish)";
             } catch (err) {
@@ -950,19 +1109,15 @@
 
         function handleScannedQrText(text) {
             const raw = String(text || '').trim();
-            if (raw.toLowerCase().includes('action=finish') || raw.toUpperCase() === 'FINISH') {
-                openQrFinishModal();
-            } else if (raw.toLowerCase().includes('action=register') || raw.toUpperCase() === 'REGISTER') {
+            if (raw.toLowerCase().includes('action=register') || raw.toUpperCase() === 'REGISTER') {
                 openQrRegisterModal();
             } else {
-                showToast("สแกนพบ QR Code: " + raw);
-                // หากสแกนป้ายเส้นชัยที่ระบุชื่อ/รหัสงาน ให้เปิดหน้าบันทึกเส้นชัย
                 openQrFinishModal();
             }
         }
 
         // =========================================================================
-        // 7. RUNNER ACTIONS: REGISTER & FINISH LINE
+        // 9. RUNNER ACTIONS: REGISTER & FINISH LINE
         // =========================================================================
         function showToast(msg) {
             const box = document.getElementById('toastBox');
@@ -1098,7 +1253,7 @@
         }
 
         // =========================================================================
-        // 8. UI RENDERING & MODALS
+        // 10. UI RENDERING & MODALS
         // =========================================================================
         function updateMyRunnerUI() {
             if (!myProfile) return;
@@ -1210,6 +1365,7 @@
         };
 
         function openCertificateModal(runner) {
+            currentOpenedCertRunner = runner;
             const paceObj = calcPace(runner.durationSec);
             document.getElementById('certRunnerName').textContent = `${runner.firstName} ${runner.lastName}`;
             document.getElementById('certRunnerBib').textContent = runner.bib;
@@ -1256,7 +1412,7 @@
         }
 
         // =========================================================================
-        // 9. INITIALIZATION & EVENT LISTENERS
+        // 11. INITIALIZATION & EVENT LISTENERS
         // =========================================================================
         document.addEventListener('DOMContentLoaded', async () => {
             await fetchLeaderboardFromGAS();
@@ -1273,7 +1429,7 @@
             document.body.addEventListener('touchstart', unlockMobileAudio, { once: true });
             document.body.addEventListener('click', unlockMobileAudio, { once: true });
 
-            // Real-time BIB duplicate check on typing
+            // Real-time BIB duplicate check
             document.getElementById('regBib').addEventListener('input', (e) => {
                 validateBibInput(e.target.value, 'regBibStatusMsg', 'btnSubmitRegister');
             });
@@ -1281,7 +1437,7 @@
                 validateBibInput(e.target.value, 'modalRegBibStatusMsg', 'btnModalSubmitReg');
             });
 
-            // Navigation & Camera Buttons
+            // Navigation & Lookup Buttons
             document.getElementById('navBtnRegister').addEventListener('click', () => {
                 document.getElementById('registerSection').scrollIntoView({ behavior: 'smooth' });
                 document.getElementById('regFirstName').focus();
@@ -1290,6 +1446,18 @@
             document.getElementById('btnBannerOpenCamera').addEventListener('click', openCameraScanner);
             document.getElementById('btnSectionOpenCamera').addEventListener('click', openCameraScanner);
 
+            document.getElementById('navBtnLookupStats').addEventListener('click', openLookupStatsModal);
+            document.getElementById('btnSectionOpenLookup').addEventListener('click', openLookupStatsModal);
+            document.getElementById('btnCloseLookupModal').addEventListener('click', () => {
+                document.getElementById('lookupStatsModal').classList.add('hidden');
+            });
+            document.getElementById('btnDoLookupSearch').addEventListener('click', performLookupSearch);
+            document.getElementById('lookupQueryInput').addEventListener('input', performLookupSearch);
+
+            // Certificate Save Image & Share
+            document.getElementById('btnSaveCertImage').addEventListener('click', saveCertificateAsImage);
+            document.getElementById('btnShareCertImage').addEventListener('click', shareCertificateImage);
+
             document.getElementById('btnCloseCameraModal').addEventListener('click', async () => {
                 await stopCameraScanner();
                 document.getElementById('cameraScannerModal').classList.add('hidden');
@@ -1297,14 +1465,6 @@
             document.getElementById('btnCancelCamera').addEventListener('click', async () => {
                 await stopCameraScanner();
                 document.getElementById('cameraScannerModal').classList.add('hidden');
-            });
-
-            document.getElementById('navBtnPersonalCert').addEventListener('click', () => {
-                if (myProfile && Number(myProfile.durationSec) > 0) {
-                    openCertificateModal(myProfile);
-                } else {
-                    showToast("เมื่อวิ่งถึงเส้นชัย ให้กด 'เปิดกล้องสแกนเส้นชัย' เพื่อส่องป้าย QR Code จุด Finish ครับ");
-                }
             });
 
             document.getElementById('btnOpenCertQuick').addEventListener('click', () => {
